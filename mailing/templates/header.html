@@ -2,17 +2,13 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
 
-            <!-- ============================= -->
             <!-- НАЗВАНИЕ / ЛОГОТИП САЙТА      -->
-            <!-- ============================= -->
 
-            <a class="navbar-brand fw-bold" href="#">
+            <a class="navbar-brand fw-bold" href="{% url 'mailing:home' %}">
                 Рассылка
             </a>
 
-            <!-- ============================= -->
             <!-- КНОПКА МОБИЛЬНОГО МЕНЮ        -->
-            <!-- ============================= -->
 
             <button
                     class="navbar-toggler"
@@ -26,9 +22,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!-- ============================= -->
             <!-- ГЛАВНОЕ МЕНЮ                  -->
-            <!-- ============================= -->
 
             <div class="collapse navbar-collapse" id="mainMenu">
 
@@ -36,14 +30,12 @@
 
                     <!-- Главная -->
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">
+                        <a class="nav-link active" href="{% url 'mailing:home' %}">
                             Главная
                         </a>
                     </li>
 
-                    <!-- ============================= -->
                     <!-- DROPDOWN: ПОЛУЧАТЕЛИ          -->
-                    <!-- ============================= -->
 
                     <li class="nav-item dropdown">
                         <a
@@ -58,22 +50,20 @@
 
                         <ul class="dropdown-menu">
                             <li>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{% url 'mailing:recipient_list' %}">
                                     Все получатели
                                 </a>
                             </li>
 
                             <li>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{% url 'mailing:recipient_add' %}">
                                     Добавить получателя
                                 </a>
                             </li>
                         </ul>
                     </li>
 
-                    <!-- ============================= -->
                     <!-- DROPDOWN: СООБЩЕНИЯ           -->
-                    <!-- ============================= -->
 
                     <li class="nav-item dropdown">
                         <a
@@ -101,9 +91,7 @@
                         </ul>
                     </li>
 
-                    <!-- ============================= -->
                     <!-- DROPDOWN: РАССЫЛКИ            -->
-                    <!-- ============================= -->
 
                     <li class="nav-item dropdown">
                         <a
@@ -131,9 +119,7 @@
                         </ul>
                     </li>
 
-                    <!-- ============================= -->
                     <!-- DROPDOWN: ПОПЫТКИ             -->
-                    <!-- ============================= -->
 
                     <li class="nav-item dropdown">
                         <a
