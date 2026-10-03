@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+
+<main class="container py-4">
+
+    <!-- Заголовок страницы -->
+    <div class="mb-4">
+        <h1 class="h2">Панель управления</h1>
+
+        <p class="text-muted mb-0">
+            Управление клиентами, сообщениями и рассылками.
+        </p>
+    </div>
+
+    <!-- СТАТИСТИКА                                            -->
+
+    <div class="row g-4">
+
+        <!-- Все рассылки -->
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+
+                    <h2 class="h6 text-muted">
+                        Все рассылки
+                    </h2>
+
+                    <p class="display-6 fw-bold mb-0">
+                        0
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Активные рассылки -->
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+
+                    <h2 class="h6 text-muted">
+                        Активные рассылки
+                    </h2>
+
+                    <p class="display-6 fw-bold mb-0">
+                        0
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Получатели -->
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+
+                    <h2 class="h6 text-muted">
+                        Уникальные получатели
+                    </h2>
+
+                    <p class="display-6 fw-bold mb-0">
+                        0
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- БЫСТРЫЕ ДЕЙСТВИЯ                                      -->
+
+    <div class="mt-5">
+
+        <h2 class="h4 mb-3">
+            Быстрые действия
+        </h2>
+
+        <div class="row g-3">
+
+            <div class="col-12 col-sm-6 col-lg-4">
+                <a href="#" class="btn btn-outline-primary w-100">
+                    Добавить получателя
+                </a>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-4">
+                <a href="#" class="btn btn-outline-primary w-100">
+                    Создать сообщение
+                </a>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-4">
+                <a href="#" class="btn btn-outline-primary w-100">
+                    Создать рассылку
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+{% endblock %}
