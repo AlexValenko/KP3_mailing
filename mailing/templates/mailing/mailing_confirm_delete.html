@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Удаление рассылки{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <!-- Заголовок -->
+            <div class="card-header">
+                <h1 class="h4 mb-0">
+                    Удаление рассылки
+                </h1>
+            </div>
+
+            <div class="card-body">
+                <p>
+                    Вы действительно хотите удалить эту рассылку?
+                </p>
+
+                <div class="mb-4">
+
+                    <p class="mb-1">
+                        <strong>Рассылка:</strong>
+                        #{{ object.pk }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Сообщение:</strong>
+                        {{ object.message.subject }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Статус:</strong>
+                        {{ object.get_status_display }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Начало:</strong>
+                        {{ object.start_datetime|date:"d.m.Y H:i" }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Окончание:</strong>
+                        {{ object.end_datetime|date:"d.m.Y H:i" }}
+                    </p>
+
+                </div>
+
+                <!-- Форма удаления -->
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+
+                        <button
+                                type="submit"
+                                class="btn btn-danger"
+                        >
+                            Удалить
+                        </button>
+
+                        <a
+                                href="{% url 'mailing:mailing_list' %}"
+                                class="btn btn-outline-secondary"
+                        >
+                            Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,15 +1,18 @@
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView, ListView
-from .models import Recipient, Message
+from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
 
-from .forms import RecipientForm, MessageForm
+from .forms import MailingForm, MessageForm, RecipientForm
+from .models import Mailing, Message, Recipient
+
 
 class HomeTemplateView(TemplateView):
     """Класс CBV для отображения домашней страницы - отображает статистику о рассылках и получателях"""
+
     template_name = "home.html"
 
-
     # ----------------------- CRUD Recipient ------------------------------
+
+
 class RecipientListView(ListView):
     """Класс CBV для вывода списка получателей рассылки"""
 
@@ -30,6 +33,7 @@ class RecipientListView(ListView):
 
         return queryset
 
+
 class RecipientCreateView(CreateView):
     """Класс CBV для создания получателя"""
 
@@ -37,6 +41,7 @@ class RecipientCreateView(CreateView):
     form_class = RecipientForm
     template_name = "recipient/recipient_form.html"
     success_url = reverse_lazy("mailing:recipient_list")
+
 
 class RecipientUpdateView(UpdateView):
     """Класс CBV для редактирования получателя."""
@@ -46,6 +51,7 @@ class RecipientUpdateView(UpdateView):
     template_name = "recipient/recipient_form.html"
     success_url = reverse_lazy("mailing:recipient_list")
 
+
 class RecipientDeleteView(DeleteView):
     """Класс CBV для удаления получателя."""
 
@@ -54,7 +60,7 @@ class RecipientDeleteView(DeleteView):
     success_url = reverse_lazy("mailing:recipient_list")
 
 
-    # ----------------------- CRUD Message ------------------------------
+# ----------------------- CRUD Message ------------------------------
 
 
 class MessageListView(ListView):
@@ -72,9 +78,7 @@ class MessageListView(ListView):
         search_query = self.request.GET.get("search", "").strip()
 
         if search_query:
-            queryset = queryset.filter(
-                subject__icontains=search_query
-            )
+            queryset = queryset.filter(subject__icontains=search_query)
 
         return queryset
 
@@ -89,7 +93,7 @@ class MessageCreateView(CreateView):
 
 
 class MessageUpdateView(UpdateView):
-    """Класс CBV - для редактирования сообщения."""
+    """Класс CBV - для редактирования сообщения"""
 
     model = Message
     form_class = MessageForm
@@ -103,3 +107,42 @@ class MessageDeleteView(DeleteView):
     model = Message
     template_name = "message/message_confirm_delete.html"
     success_url = reverse_lazy("mailing:message_list")
+
+
+# ----------------------- CRUD Mailing ------------------------------
+
+
+class MailingListView(ListView):
+    """Класс CBV - выводит список рассылок."""
+
+    model = Mailing
+    template_name = "mailing/mailing_list.html"
+    context_object_name = "mailings"
+    paginate_by = 30
+    ordering = ("-start_datetime",)
+
+
+class MailingCreateView(CreateView):
+    """Класс CBV - для создания рассылки"""
+
+    model = Mailing
+    form_class = MailingForm
+    template_name = "mailing/mailing_form.html"
+    success_url = reverse_lazy("mailing:mailing_list")
+
+
+class MailingUpdateView(UpdateView):
+    """Класс CBV - для редактирования рассылки"""
+
+    model = Mailing
+    form_class = MailingForm
+    template_name = "mailing/mailing_form.html"
+    success_url = reverse_lazy("mailing:mailing_list")
+
+
+class MailingDeleteView(DeleteView):
+    """Класс CBV - для удаления рассылки"""
+
+    model = Mailing
+    template_name = "mailing/mailing_confirm_delete.html"
+    success_url = reverse_lazy("mailing:mailing_list")

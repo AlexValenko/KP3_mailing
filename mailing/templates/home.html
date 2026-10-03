@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
-
 {% block title %}Главная{% endblock %}
-
 {% block content %}
 
 <main class="container py-4">
@@ -97,7 +95,7 @@
             </div>
 
             <div class="col-12 col-sm-6 col-lg-4">
-                <a href="#" class="btn btn-outline-primary w-100">
+                <a href="{% url 'mailing:mailing_add' %}" class="btn btn-outline-primary w-100">
                     Создать рассылку
                 </a>
             </div>
