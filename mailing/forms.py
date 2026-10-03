@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Recipient
+from .models import Recipient, Message
 
 
 class RecipientForm(forms.ModelForm):
@@ -36,3 +36,28 @@ class RecipientForm(forms.ModelForm):
 
         for field in self.fields.values():
             field.widget.attrs["autocomplete"] = "off"
+
+class MessageForm(forms.ModelForm):
+    """Форма для создания и редактирования сообщений"""
+
+    class Meta:
+        model = Message
+        fields = ("subject", "body")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["subject"].widget.attrs.update(
+            {
+                "class": "form-control",
+                "placeholder": "Тема письма",
+            }
+        )
+
+        self.fields["body"].widget.attrs.update(
+            {
+                "class": "form-control",
+                "placeholder": "Текст письма",
+                "rows": 8,
+            }
+        )

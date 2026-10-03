@@ -18,18 +18,14 @@
                 Управление получателями рассылок
             </p>
         </div>
-
     </div>
 
     <!-- ПОИСК                                                 -->
 
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body">
-
             <form method="get">
-
                 <div class="row g-2">
-
                     <div class="col-12 col-md">
                         <label
                                 for="search"
@@ -49,52 +45,39 @@
                     </div>
 
                     <div class="col-12 col-md-auto">
-
                         <button
                                 type="submit"
                                 class="btn btn-primary w-100"
                         >
                             Найти
                         </button>
-
                     </div>
 
                     {% if request.GET.search %}
 
                     <div class="col-12 col-md-auto">
-
                         <a
                                 href="{% url 'mailing:recipient_list' %}"
                                 class="btn btn-outline-secondary w-100"
                         >
                             Сбросить
                         </a>
-
                     </div>
 
                     {% endif %}
-
                 </div>
-
             </form>
-
         </div>
     </div>
 
     <!-- ТАБЛИЦА ПОЛУЧАТЕЛЕЙ                                  -->
 
     <div class="card shadow-sm border-0">
-
         <div class="card-body p-0">
-
             {% if recipients %}
-
             <div class="table-responsive">
-
                 <table class="table table-hover align-middle mb-0">
-
                     <thead class="table-light">
-
                     <tr>
                         <th scope="col">
                             Ф. И. О.
@@ -115,23 +98,17 @@
                             Действия
                         </th>
                     </tr>
-
                     </thead>
 
                     <tbody>
-
                     {% for recipient in recipients %}
-
                     <tr>
-
                         <td>
                             {{ recipient.full_name }}
                         </td>
-
                         <td>
                             {{ recipient.email }}
                         </td>
-
                         <td>
                             {% if recipient.comment %}
                             {{ recipient.comment|truncatechars:80 }}
@@ -161,13 +138,9 @@
                         </td>
 
                     </tr>
-
                     {% endfor %}
-
                     </tbody>
-
                 </table>
-
             </div>
 
             {% else %}
@@ -188,13 +161,9 @@
                     Сбросить поиск
                 </a>
                 {% endif %}
-
             </div>
-
             {% endif %}
-
         </div>
-
     </div>
 
     <!-- ПАГИНАЦИЯ                                             -->
@@ -269,23 +238,19 @@
     <!-- КНОПКИ                                          -->
 
     <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4">
-
         <a
                 href="{% url 'mailing:home' %}"
                 class="btn btn-outline-secondary"
         >
             На главную
         </a>
-
         <a
                 href="{% url 'mailing:recipient_add' %}"
                 class="btn btn-primary"
         >
             Добавить нового получателя
         </a>
-
     </div>
-
 </div>
 
 {% endblock %}
