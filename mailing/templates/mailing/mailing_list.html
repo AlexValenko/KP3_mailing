@@ -56,24 +56,27 @@
                     {{ mailing.recipients.count }}
                 </td>
 
-                <td class="text-end">
-                    <div class="btn-group" role="group">
+                <td class="text-end text-nowrap">
+                    <a
+                                    href="{% url 'mailing:mailing_detail_view' mailing.pk %}"
+                                    class="btn btn-sm btn-outline-primary"
+                            >
+                                Просмотр
+                            </a>
 
-                        <a
-                                href="{% url 'mailing:mailing_update' mailing.pk %}"
-                                class="btn btn-sm btn-outline-primary"
-                        >
-                            Изменить
-                        </a>
+                            <a
+                                    href="{% url 'mailing:mailing_update' mailing.pk %}"
+                                    class="btn btn-sm btn-outline-primary"
+                            >
+                                Редактировать
+                            </a>
 
-                        <a
-                                href="{% url 'mailing:mailing_delete' mailing.pk %}"
-                                class="btn btn-sm btn-outline-danger"
-                        >
-                            Удалить
-                        </a>
-
-                    </div>
+                            <a
+                                    href="{% url 'mailing:mailing_delete' mailing.pk %}"
+                                    class="btn btn-sm btn-outline-danger"
+                            >
+                                Удалить
+                            </a>
                 </td>
             </tr>
             {% endfor %}

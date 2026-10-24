@@ -1,5 +1,5 @@
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
+from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView, DetailView
 
 from .forms import MailingForm, MessageForm, RecipientForm
 from .models import Mailing, Message, Recipient
@@ -36,7 +36,7 @@ class RecipientListView(ListView):
         return queryset
 
 
-class RecipientDetailView(DeleteView):
+class RecipientDetailView(DetailView):
     """Класс CBV для просмотра детальной информации о получателе рассылки"""
     model = Recipient
     template_name = "recipient/recipient_detail_view.html"
@@ -90,6 +90,12 @@ class MessageListView(ListView):
 
         return queryset
 
+class MessageDetailView(DetailView):
+    """Класс CBV - выводит детали сообщения"""
+    model = Message
+    template_name = "message/message_detail_view.html"
+
+
 
 class MessageCreateView(CreateView):
     """Класс CBV - для создания сообщения"""
@@ -128,6 +134,12 @@ class MailingListView(ListView):
     context_object_name = "mailings"
     paginate_by = 30
     ordering = ("-start_datetime",)
+
+
+class MailingDetailView(DetailView):
+    model = Mailing
+    template_name = "mailing/mailing_details_view.html"
+    context_object_name = "mailing"
 
 
 class MailingCreateView(CreateView):

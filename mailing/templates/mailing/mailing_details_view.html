@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}
+Детали рассылки
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h1 class="h3 mb-4">
+                    {% if mailing %}
+                    Детали рассылки
+                    {% else %}
+                    Нет данных
+                    {% endif %}
+                </h1>
+
+                <p class="card-text">Статус:</p>
+                <p class="card-text">{{mailing.status}} </p>
+                <p class="card-text">Сроки рассылки: {{mailing.start_datetime}} - {{mailing.end_datetime}}</p>
+                <p class="card-text">Тема сообщения:</p>
+                <p class="card-text">{{mailing.message}} </p>
+                <p class="card-text">Список получателей:</p>
+                {% if mailing.recipients.all %}
+                <ul>
+                    {% for recipient in mailing.recipients.all %}
+                    <li>
+                        <a href="{% url 'mailing:recipient_details' recipient.pk %}">
+                            {{ recipient.full_name }} ({{ recipient.email }})
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">Нет получателей</p>
+                {% endif %}
+
+
+                <!-- Кнопки -->
+                <div class="d-flex flex-column flex-sm-row gap-2">
+
+                    <a
+                            href="{% url 'mailing:mailing_list' %}"
+                            class="btn btn-outline-secondary"
+                    >
+                        К списку
+                    </a>
+                    {% if object %}
+                    <a
+                            href="{% url 'mailing:mailing_update' object.pk %}"
+                            class="btn btn-outline-primary"
+                    >
+                        Редактировать
+                    </a>
+
+                    <a
+                            href="{% url 'mailing:mailing_delete' object.pk %}"
+                            class="btn btn-outline-danger"
+                    >
+                        Удалить
+                    </a>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

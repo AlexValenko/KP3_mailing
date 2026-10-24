@@ -25,38 +25,38 @@
                 <div class="row g-2">
                     <div class="col-12 col-md">
                         <label
-                            for="search"
-                            class="visually-hidden"
+                                for="search"
+                                class="visually-hidden"
                         >
                             Поиск по теме
                         </label>
                         <input
-                            type="text"
-                            name="search"
-                            id="search"
-                            class="form-control"
-                            placeholder="Поиск по теме письма..."
-                            value="{{ request.GET.search|default:'' }}"
+                                type="text"
+                                name="search"
+                                id="search"
+                                class="form-control"
+                                placeholder="Поиск по теме письма..."
+                                value="{{ request.GET.search|default:'' }}"
                         >
                     </div>
                     <div class="col-12 col-md-auto">
                         <button
-                            type="submit"
-                            class="btn btn-primary w-100"
+                                type="submit"
+                                class="btn btn-primary w-100"
                         >
                             Найти
                         </button>
                     </div>
 
                     {% if request.GET.search %}
-                        <div class="col-12 col-md-auto">
-                            <a
+                    <div class="col-12 col-md-auto">
+                        <a
                                 href="{% url 'mailing:message_list' %}"
                                 class="btn btn-outline-secondary w-100"
-                            >
-                                Сбросить
-                            </a>
-                        </div>
+                        >
+                            Сбросить
+                        </a>
+                    </div>
                     {% endif %}
                 </div>
             </form>
@@ -68,75 +68,82 @@
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
             {% if messages %}
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col">
-                                    Тема письма
-                                </th>
-                                <th scope="col">
-                                    Текст письма
-                                </th>
-                                <th
-                                    scope="col"
-                                    class="text-end"
-                                >
-                                    Действия
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">
+                            Тема письма
+                        </th>
+                        <th scope="col">
+                            Текст письма
+                        </th>
+                        <th
+                                scope="col"
+                                class="text-end"
+                        >
+                            Действия
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
 
-                            {% for message in messages %}
-                                <tr>
-                                    <td>
-                                        <strong>
-                                            {{ message.subject }}
-                                        </strong>
-                                    </td>
-                                    <td>
-                                        {{ message.body|truncatechars:120 }}
-                                    </td>
-                                    <td class="text-end text-nowrap">
-                                        <a
-                                            href="{% url 'mailing:message_update' message.pk %}"
-                                            class="btn btn-sm btn-outline-primary"
-                                        >
-                                            Редактировать
-                                        </a>
+                    {% for message in messages %}
+                    <tr>
+                        <td>
+                            <strong>
+                                {{ message.subject }}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ message.body|truncatechars:120 }}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a
+                                    href="{% url 'mailing:message_detail_view' message.pk %}"
+                                    class="btn btn-sm btn-outline-primary"
+                            >
+                                Просмотр
+                            </a>
 
-                                        <a
-                                            href="{% url 'mailing:message_delete' message.pk %}"
-                                            class="btn btn-sm btn-outline-danger"
-                                        >
-                                            Удалить
-                                        </a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                            <a
+                                    href="{% url 'mailing:message_update' message.pk %}"
+                                    class="btn btn-sm btn-outline-primary"
+                            >
+                                Редактировать
+                            </a>
+
+                            <a
+                                    href="{% url 'mailing:message_delete' message.pk %}"
+                                    class="btn btn-sm btn-outline-danger"
+                            >
+                                Удалить
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             {% else %}
 
-                <!-- СООБЩЕНИЯ НЕ НАЙДЕНЫ                              -->
+            <!-- СООБЩЕНИЯ НЕ НАЙДЕНЫ                              -->
 
-                <div class="p-4 text-center">
-                    <p class="text-muted mb-3">
-                        Сообщения не найдены.
-                    </p>
-                    {% if request.GET.search %}
+            <div class="p-4 text-center">
+                <p class="text-muted mb-3">
+                    Сообщения не найдены.
+                </p>
+                {% if request.GET.search %}
 
-                        <a
-                            href="{% url 'mailing:message_list' %}"
-                            class="btn btn-outline-secondary"
-                        >
-                            Сбросить поиск
-                        </a>
+                <a
+                        href="{% url 'mailing:message_list' %}"
+                        class="btn btn-outline-secondary"
+                >
+                    Сбросить поиск
+                </a>
 
-                    {% endif %}
-                </div>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
     </div>
@@ -144,87 +151,87 @@
     <!-- ПАГИНАЦИЯ                                             -->
 
     {% if is_paginated %}
-        <nav
+    <nav
             aria-label="Навигация по страницам"
             class="mt-4"
-        >
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a
-                            class="page-link"
-                            href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
-                        >
-                            Назад
-                        </a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
+    >
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a
+                        class="page-link"
+                        href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                >
+                    Назад
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
                         <span class="page-link">
                             Назад
                         </span>
-                    </li>
+            </li>
 
-                {% endif %}
+            {% endif %}
 
-                {% for num in page_obj.paginator.page_range %}
+            {% for num in page_obj.paginator.page_range %}
 
-                    {% if page_obj.number == num %}
+            {% if page_obj.number == num %}
 
-                        <li class="page-item active">
+            <li class="page-item active">
 
                             <span class="page-link">
                                 {{ num }}
                             </span>
 
-                        </li>
+            </li>
 
-                    {% else %}
+            {% else %}
 
-                        <li class="page-item">
+            <li class="page-item">
 
-                            <a
-                                class="page-link"
-                                href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
-                            >
-                                {{ num }}
-                            </a>
+                <a
+                        class="page-link"
+                        href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                >
+                    {{ num }}
+                </a>
 
-                        </li>
+            </li>
 
-                    {% endif %}
+            {% endif %}
 
-                {% endfor %}
+            {% endfor %}
 
 
-                {% if page_obj.has_next %}
+            {% if page_obj.has_next %}
 
-                    <li class="page-item">
+            <li class="page-item">
 
-                        <a
-                            class="page-link"
-                            href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
-                        >
-                            Вперёд
-                        </a>
+                <a
+                        class="page-link"
+                        href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                >
+                    Вперёд
+                </a>
 
-                    </li>
+            </li>
 
-                {% else %}
+            {% else %}
 
-                    <li class="page-item disabled">
+            <li class="page-item disabled">
 
                         <span class="page-link">
                             Вперёд
                         </span>
 
-                    </li>
+            </li>
 
-                {% endif %}
+            {% endif %}
 
-            </ul>
+        </ul>
 
-        </nav>
+    </nav>
 
     {% endif %}
 
@@ -233,15 +240,15 @@
     <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4">
 
         <a
-            href="{% url 'mailing:home' %}"
-            class="btn btn-outline-secondary"
+                href="{% url 'mailing:home' %}"
+                class="btn btn-outline-secondary"
         >
             На главную
         </a>
 
         <a
-            href="{% url 'mailing:message_add' %}"
-            class="btn btn-primary"
+                href="{% url 'mailing:message_add' %}"
+                class="btn btn-primary"
         >
             Добавить новое сообщение
         </a>
