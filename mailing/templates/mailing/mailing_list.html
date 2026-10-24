@@ -28,9 +28,11 @@
                 <th>ID</th>
                 <th>Начало</th>
                 <th>Окончание</th>
+                <!-- Скрыл столбец со статусом, т.к. по ТЗ обновление статуса должно происходить при DetailView
                 <th>Статус</th>
+                -->
                 <th>Сообщение</th>
-                <th>Получатели</th>
+                <th>Число получателей</th>
                 <th class="text-end">Действия</th>
             </tr>
             </thead>
@@ -45,9 +47,14 @@
                 <td>
                     {{ mailing.end_datetime|date:"d.m.Y H:i" }}
                 </td>
+
+
+                <!-- Скрыл столбец со статусом, т.к. по ТЗ обновление статуса должно происходить при DetailView
                 <td>
-                    {{ mailing.get_status_display }}
+                {{ mailing.get_status_display }}
                 </td>
+                -->
+
                 <td>
                     {{ mailing.message.subject }}
                 </td>

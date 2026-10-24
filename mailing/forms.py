@@ -1,5 +1,5 @@
-from django.utils import timezone
 from django import forms
+from django.utils import timezone
 
 from .models import Mailing, Message, Recipient
 
@@ -137,7 +137,6 @@ class MailingForm(forms.ModelForm):
         if not start_datetime or start_datetime <= now:
             raise forms.ValidationError("Дата начала не может быть в прошлом")
         return start_datetime
-
 
     def clean(self):
         """Проверяет корректность периода рассылки."""

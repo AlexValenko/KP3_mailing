@@ -1,5 +1,5 @@
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView, DetailView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
 
 from .forms import MailingForm, MessageForm, RecipientForm
 from .models import Mailing, Message, Recipient
@@ -9,8 +9,6 @@ class HomeTemplateView(TemplateView):
     """Класс CBV для отображения домашней страницы - отображает статистику о рассылках и получателях"""
 
     template_name = "home.html"
-
-
 
     # ----------------------- CRUD Recipient ------------------------------
 
@@ -38,6 +36,7 @@ class RecipientListView(ListView):
 
 class RecipientDetailView(DetailView):
     """Класс CBV для просмотра детальной информации о получателе рассылки"""
+
     model = Recipient
     template_name = "recipient/recipient_detail_view.html"
 
@@ -90,11 +89,12 @@ class MessageListView(ListView):
 
         return queryset
 
+
 class MessageDetailView(DetailView):
     """Класс CBV - выводит детали сообщения"""
+
     model = Message
     template_name = "message/message_detail_view.html"
-
 
 
 class MessageCreateView(CreateView):
@@ -141,6 +141,11 @@ class MailingDetailView(DetailView):
     template_name = "mailing/mailing_details_view.html"
     context_object_name = "mailing"
 
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        obj.update_status()  # ← пересчёт и сохранение статуса
+        return obj
+
 
 class MailingCreateView(CreateView):
     """Класс CBV - для создания рассылки"""
@@ -159,6 +164,11 @@ class MailingUpdateView(UpdateView):
     template_name = "mailing/mailing_form.html"
     success_url = reverse_lazy("mailing:mailing_list")
 
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        obj.update_status()  # ← пересчёт и сохранение статуса
+        return obj
+
 
 class MailingDeleteView(DeleteView):
     """Класс CBV - для удаления рассылки"""
@@ -166,3 +176,8 @@ class MailingDeleteView(DeleteView):
     model = Mailing
     template_name = "mailing/mailing_confirm_delete.html"
     success_url = reverse_lazy("mailing:mailing_list")
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        obj.update_status()  # ← пересчёт и сохранение статуса
+        return obj

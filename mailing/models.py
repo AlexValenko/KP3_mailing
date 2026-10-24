@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Recipient(models.Model):
@@ -51,6 +52,15 @@ class Mailing(models.Model):
     class Meta:
         verbose_name = "Рассылка"
         verbose_name_plural = "Рассылки"
+
+    def update_status(self):
+        now = timezone.now()
+        if now < self.start_datetime:
+            self.status = "created"
+        elif self.start_datetime <= now <= self.end_datetime:
+            self.status = "started"
+        else:
+            self.status = "completed"
 
 
 class MailingAttempt(models.Model):

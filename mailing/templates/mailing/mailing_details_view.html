@@ -19,7 +19,7 @@
                 </h1>
 
                 <p class="card-text">Статус:</p>
-                <p class="card-text">{{mailing.status}} </p>
+                <p class="card-text">{{mailing.get_status_display}} </p>
                 <p class="card-text">Сроки рассылки: {{mailing.start_datetime}} - {{mailing.end_datetime}}</p>
                 <p class="card-text">Тема сообщения:</p>
                 <p class="card-text">{{mailing.message}} </p>
