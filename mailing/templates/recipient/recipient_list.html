@@ -121,6 +121,13 @@
 
                         <td class="text-end text-nowrap">
 
+                                                        <a
+                                    href="{% url 'mailing:recipient_details' recipient.pk %}"
+                                    class="btn btn-sm btn-outline-primary"
+                            >
+                                Просмотр
+                            </a>
+
                             <a
                                     href="{% url 'mailing:recipient_update' recipient.pk %}"
                                     class="btn btn-sm btn-outline-primary"
@@ -238,11 +245,12 @@
     <!-- КНОПКИ                                          -->
 
     <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4">
+
         <a
-                href="{% url 'mailing:home' %}"
+                href="{% url 'mailing:recipient_list' %}"
                 class="btn btn-outline-secondary"
         >
-            На главную
+            К списку
         </a>
         <a
                 href="{% url 'mailing:recipient_add' %}"

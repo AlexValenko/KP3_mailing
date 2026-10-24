@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django import forms
 
 from .models import Mailing, Message, Recipient
@@ -129,6 +130,15 @@ class MailingForm(forms.ModelForm):
             "%Y-%m-%dT%H:%M",
         ]
 
+    def clean_start_datetime(self):
+        """Проверяет, что start_time не может быть в прошлом."""
+        start_datetime = self.cleaned_data.get("start_datetime")
+        now = timezone.now()
+        if not start_datetime or start_datetime <= now:
+            raise forms.ValidationError("Дата начала не может быть в прошлом")
+        return start_datetime
+
+
     def clean(self):
         """Проверяет корректность периода рассылки."""
         cleaned_data = super().clean()
@@ -137,6 +147,6 @@ class MailingForm(forms.ModelForm):
         end_datetime = cleaned_data.get("end_datetime")
 
         if start_datetime and end_datetime and start_datetime >= end_datetime:
-            raise forms.ValidationError("Дата окончания должна быть позже даты первой отправки.")
+            raise forms.ValidationError("Дата окончания должна быть позже даты первой отправки")
 
         return cleaned_data

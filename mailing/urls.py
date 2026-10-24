@@ -14,6 +14,7 @@ from mailing.views import (
     RecipientCreateView,
     RecipientDeleteView,
     RecipientListView,
+    RecipientDetailView,
     RecipientUpdateView,
 )
 
@@ -23,6 +24,7 @@ urlpatterns = [
     path("home/", HomeTemplateView.as_view(), name="home"),
     # Получатели
     path("recipients/", RecipientListView.as_view(), name="recipient_list"),
+    path("recipients/<int:pk>/", RecipientDetailView.as_view(), name="recipient_details"),
     path("recipients/create/", RecipientCreateView.as_view(), name="recipient_add"),
     path("recipients/<int:pk>/update/", RecipientUpdateView.as_view(), name="recipient_update"),
     path("recipients/<int:pk>/delete/", RecipientDeleteView.as_view(), name="recipient_delete"),

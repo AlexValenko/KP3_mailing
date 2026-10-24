@@ -10,6 +10,8 @@ class HomeTemplateView(TemplateView):
 
     template_name = "home.html"
 
+
+
     # ----------------------- CRUD Recipient ------------------------------
 
 
@@ -32,6 +34,12 @@ class RecipientListView(ListView):
             queryset = queryset.filter(full_name__icontains=search_query)
 
         return queryset
+
+
+class RecipientDetailView(DeleteView):
+    """Класс CBV для просмотра детальной информации о получателе рассылки"""
+    model = Recipient
+    template_name = "recipient/recipient_detail_view.html"
 
 
 class RecipientCreateView(CreateView):
