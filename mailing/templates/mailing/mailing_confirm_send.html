@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Отправка рассылки{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <!-- Заголовок -->
+            <div class="card-header">
+                <h1 class="h4 mb-0">
+                    Отправка рассылки
+                </h1>
+            </div>
+
+            <div class="card-body">
+                <p>
+                    <strong>Проверьте данные перед отправкой</strong>
+                </p>
+                {% if errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for error in errors %}
+                    <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="mb-4">
+
+                    <p class="mb-1">
+                        <strong>Рассылка:</strong>
+                        #{{ object.pk }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Сообщение:</strong>
+                        {{ object.message.subject }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Статус:</strong>
+                        {{ object.get_status_display }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Даты рассылки:</strong>
+                        {{ object.start_datetime|date:"d.m.Y H:i" }} - {{ object.end_datetime|date:"d.m.Y H:i" }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Список получателей</strong>
+                        {% if object.recipients.all %}
+                    </p>
+                    <ul>
+                        {% for recipient in object.recipients.all %}
+                        <li>
+                            <a href="{% url 'mailing:recipient_details' recipient.pk %}">
+                                {{ recipient.full_name }} ({{ recipient.email }})
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">Нет получателей</p>
+                    {% endif %}
+
+                </div>
+
+                <!-- Форма отправки -->
+                <form method="post" action="{% url 'mailing:mailing_send' pk %}">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+
+                        <button
+                                type="submit"
+                                class="btn btn-danger"
+                        >
+                            Отправить
+                        </button>
+
+                        <a
+                                href="{% url 'mailing:mailing_detail_view' pk %}"
+                                class="btn btn-outline-secondary"
+                        >
+                            Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

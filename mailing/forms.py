@@ -74,7 +74,7 @@ class MailingForm(forms.ModelForm):
         fields = (
             "start_datetime",
             "end_datetime",
-            "status",
+            # "status",
             "message",
             "recipients",
         )
@@ -94,11 +94,12 @@ class MailingForm(forms.ModelForm):
                 },
                 format="%Y-%m-%dT%H:%M",
             ),
-            "status": forms.Select(
-                attrs={
-                    "class": "form-select",
-                }
-            ),
+            # Поле заполняется автоматически по датам
+            # "status": forms.Select(
+            #     attrs={
+            #         "class": "form-select",
+            #     }
+            # ),
             "message": forms.Select(
                 attrs={
                     "class": "form-select",
@@ -115,7 +116,7 @@ class MailingForm(forms.ModelForm):
         labels = {
             "start_datetime": "Дата и время первой отправки",
             "end_datetime": "Дата и время окончания отправки",
-            "status": "Статус",
+            # "status": "Статус",
             "message": "Сообщение",
             "recipients": "Получатели",
         }
@@ -134,8 +135,13 @@ class MailingForm(forms.ModelForm):
         """Проверяет, что start_time не может быть в прошлом."""
         start_datetime = self.cleaned_data.get("start_datetime")
         now = timezone.now()
-        if not start_datetime or start_datetime <= now:
-            raise forms.ValidationError("Дата начала не может быть в прошлом")
+
+        is_new = self.instance.pk is None
+        start_changed = "start_datetime" in self.changed_data
+
+        if is_new or start_changed:
+            if not start_datetime or start_datetime <= now:
+                raise forms.ValidationError("Дата начала не может быть в прошлом")
         return start_datetime
 
     def clean(self):

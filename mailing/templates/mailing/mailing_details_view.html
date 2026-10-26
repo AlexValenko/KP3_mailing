@@ -6,6 +6,12 @@
 
 {% block content %}
 
+{% for notification in messages %}
+    <div class="alert alert-info" role="status">
+        {{ notification }}
+    </div>
+{% endfor %}
+
 <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
         <div class="card shadow-sm border-0">
@@ -18,29 +24,62 @@
                     {% endif %}
                 </h1>
 
-                <p class="card-text">Статус:</p>
-                <p class="card-text">{{mailing.get_status_display}} </p>
-                <p class="card-text">Сроки рассылки: {{mailing.start_datetime}} - {{mailing.end_datetime}}</p>
-                <p class="card-text">Тема сообщения:</p>
-                <p class="card-text">{{mailing.message}} </p>
-                <p class="card-text">Список получателей:</p>
-                {% if mailing.recipients.all %}
-                <ul>
-                    {% for recipient in mailing.recipients.all %}
-                    <li>
-                        <a href="{% url 'mailing:recipient_details' recipient.pk %}">
-                            {{ recipient.full_name }} ({{ recipient.email }})
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="text-muted">Нет получателей</p>
-                {% endif %}
+                <div class="mb-4">
+
+                    <p class="mb-1">
+                        <strong>Рассылка:</strong>
+                        #{{ object.pk }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Тема сообщения:</strong>
+                        {{ object.message.subject }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Статус:</strong>
+                        {{ object.get_status_display }}
+                    </p>
+
+                    <p class="mb-1">
+                        <strong>Начало:</strong>
+                        {{ object.start_datetime|date:"d.m.Y H:i" }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Окончание:</strong>
+                        {{ object.end_datetime|date:"d.m.Y H:i" }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Список получателей</strong>
+                        {% if mailing.recipients.all %}
+                    </p>
+                    <ul>
+                        {% for recipient in mailing.recipients.all %}
+                        <li>
+                            <a href="{% url 'mailing:recipient_details' recipient.pk %}">
+                                {{ recipient.full_name }} ({{ recipient.email }})
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">Нет получателей</p>
+                    {% endif %}
+
+
+                </div>
 
 
                 <!-- Кнопки -->
                 <div class="d-flex flex-column flex-sm-row gap-2">
+
+                    <a
+                            href="{% url 'mailing:mailing_send' object.pk %}"
+                            class="btn btn-outline-primary"
+                    >
+                        Выполнить рассылку
+                    </a>
 
                     <a
                             href="{% url 'mailing:mailing_list' %}"

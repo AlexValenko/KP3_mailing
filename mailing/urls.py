@@ -7,6 +7,7 @@ from mailing.views import (
     MailingDeleteView,
     MailingDetailView,
     MailingListView,
+    MailingSendView,
     MailingUpdateView,
     MessageCreateView,
     MessageDeleteView,
@@ -39,6 +40,7 @@ urlpatterns = [
     # Рассылки
     path("mailings/", MailingListView.as_view(), name="mailing_list"),
     path("mailings/<int:pk>/", MailingDetailView.as_view(), name="mailing_detail_view"),
+    path("mailings/<int:pk>/send/", MailingSendView.as_view(), name="mailing_send"),
     path("mailings/create/", MailingCreateView.as_view(), name="mailing_add"),
     path("mailings/<int:pk>/update/", MailingUpdateView.as_view(), name="mailing_update"),
     path("mailings/<int:pk>/delete/", MailingDeleteView.as_view(), name="mailing_delete"),

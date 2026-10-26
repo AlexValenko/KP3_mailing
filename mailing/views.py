@@ -1,8 +1,15 @@
-from django.urls import reverse_lazy
+from django.contrib import messages
+from django.db.models import ProtectedError
+from django.forms import forms
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
 
 from .forms import MailingForm, MessageForm, RecipientForm
 from .models import Mailing, Message, Recipient
+from .services import send_email
 
 
 class HomeTemplateView(TemplateView):
@@ -122,6 +129,13 @@ class MessageDeleteView(DeleteView):
     template_name = "message/message_confirm_delete.html"
     success_url = reverse_lazy("mailing:message_list")
 
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except ProtectedError:
+            form.add_error(None, "Нельзя удалить сообщение: оно используется в рассылках.")
+        return self.form_invalid(form)
+
 
 # ----------------------- CRUD Mailing ------------------------------
 
@@ -181,3 +195,35 @@ class MailingDeleteView(DeleteView):
         obj = super().get_object(queryset)
         obj.update_status()  # ← пересчёт и сохранение статуса
         return obj
+
+
+class MailingSendView(View):
+
+    def get(self, request, pk):
+        mailing = get_object_or_404(Mailing, pk=pk)
+        mailing
+        return render(
+            request, template_name="mailing/mailing_confirm_send.html", context={"pk": pk, "object": mailing}
+        )
+
+    def post(self, request, pk):
+        mailing = get_object_or_404(Mailing, pk=pk)
+
+        # логика отправки писем
+        try:
+            result = send_email(mailing)
+        except forms.ValidationError as e:
+            return render(
+                request,
+                template_name="mailing/mailing_confirm_send.html",
+                context={"pk": pk, "object": mailing, "errors": e.messages},
+            )
+
+        messages.info(
+            request,
+            f"Отправка завершена. "
+            f"Успешно: {result['success_attempts']}. "
+            f"Неуспешно: {result['failed_attempts']}.",
+        )
+
+        return HttpResponseRedirect(reverse("mailing:mailing_detail_view", kwargs={"pk": pk}))

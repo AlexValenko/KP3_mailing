@@ -56,11 +56,15 @@ class Mailing(models.Model):
     def update_status(self):
         now = timezone.now()
         if now < self.start_datetime:
-            self.status = "created"
+            actual_status = "created"
         elif self.start_datetime <= now <= self.end_datetime:
-            self.status = "started"
+            actual_status = "started"
         else:
-            self.status = "completed"
+            actual_status = "completed"
+
+        if self.status != actual_status:
+            self.status = actual_status
+            self.save()
 
 
 class MailingAttempt(models.Model):
