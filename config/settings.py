@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +24,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mailing'
+    'mailing',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -126,6 +126,13 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+AUTH_USER_MODEL = 'users.CustomUser'
+
+PHONENUMBER_DEFAULT_REGION = "RU"
+
+LOGIN_URL = "users:login"
+LOGIN_REDIRECT_URL = "/home/"
 
 import os
 LOGGING = {
