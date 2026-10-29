@@ -4,6 +4,7 @@ from django.forms import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
 
@@ -16,6 +17,16 @@ class HomeTemplateView(TemplateView):
     """Класс CBV для отображения домашней страницы - отображает статистику о рассылках и получателях"""
 
     template_name = "home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["mailing_count"] = Mailing.objects.all().count()
+        now = timezone.now()
+        started_mailings = Mailing.objects.filter(status="started")
+        active_mailings = started_mailings.filter(start_datetime__lte=now, end_datetime__gte=now)
+        context["active_mailings_count"] = active_mailings.count()
+        context["unique_recipients_count"] = Recipient.objects.all().count()
+        return context
 
     # ----------------------- CRUD Recipient ------------------------------
 

@@ -27,7 +27,11 @@
                     </h2>
 
                     <p class="display-6 fw-bold mb-0">
+                        {% if mailing_count %}
+                        {{mailing_count}}
+                        {% else %}
                         0
+                        {% endif %}
                     </p>
 
                 </div>
@@ -45,7 +49,11 @@
                     </h2>
 
                     <p class="display-6 fw-bold mb-0">
+                        {% if active_mailings_count %}
+                        {{active_mailings_count}}
+                        {% else %}
                         0
+                        {% endif %}
                     </p>
 
                 </div>
@@ -63,7 +71,11 @@
                     </h2>
 
                     <p class="display-6 fw-bold mb-0">
+                        {% if unique_recipients_count %}
+                        {{unique_recipients_count}}
+                        {% else %}
                         0
+                        {% endif %}
                     </p>
 
                 </div>
