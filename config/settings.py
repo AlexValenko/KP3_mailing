@@ -133,6 +133,7 @@ PHONENUMBER_DEFAULT_REGION = "RU"
 
 LOGIN_URL = "users:login"
 LOGIN_REDIRECT_URL = "/home/"
+# LOGOUT_REDIRECT_URL = "/home/"
 
 import os
 LOGGING = {
