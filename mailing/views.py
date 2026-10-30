@@ -67,6 +67,10 @@ class RecipientCreateView(CreateView):
     template_name = "recipient/recipient_form.html"
     success_url = reverse_lazy("mailing:recipient_list")
 
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
 
 class RecipientUpdateView(UpdateView):
     """Класс CBV для редактирования получателя."""
@@ -122,6 +126,10 @@ class MessageCreateView(CreateView):
     form_class = MessageForm
     template_name = "message/message_form.html"
     success_url = reverse_lazy("mailing:message_list")
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
 
 class MessageUpdateView(UpdateView):
@@ -179,6 +187,10 @@ class MailingCreateView(CreateView):
     form_class = MailingForm
     template_name = "mailing/mailing_form.html"
     success_url = reverse_lazy("mailing:mailing_list")
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
 
 class MailingUpdateView(UpdateView):
