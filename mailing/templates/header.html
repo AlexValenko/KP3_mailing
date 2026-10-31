@@ -119,8 +119,9 @@
                         </ul>
                     </li>
 
-                    <!-- DROPDOWN: ПОПЫТКИ             -->
+                    <!-- DROPDOWN: ПОЛЬЗОВАТЕЛИ - ТОЛЬКО ДЛЯ МЕНЕДЖЕРА       -->
 
+                    {% if perms.users.block_user %}
                     <li class="nav-item dropdown">
                         <a
                                 class="nav-link dropdown-toggle"
@@ -129,17 +130,18 @@
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                         >
-                            Попытки
+                            Пользователи
                         </a>
 
                         <ul class="dropdown-menu">
                             <li>
-                                <a class="dropdown-item" href="#">
-                                    Все попытки
+                                <a class="dropdown-item" href="{% url 'users:users_list'%}">
+                                    Все пользователи
                                 </a>
                             </li>
                         </ul>
                     </li>
+                    {% endif %}
 
                     <!-- Вход / выход / регистрация -->
                     {% if user.is_authenticated %}
@@ -160,7 +162,7 @@
                                     Редактировать профиль
                                 </a>
                             </li>
-                                                        <li>
+                            <li>
                                 <a class="dropdown-item" href="{% url 'users:statistic'%}">
                                     Статистика
                                 </a>

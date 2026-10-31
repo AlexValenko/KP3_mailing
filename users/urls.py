@@ -9,6 +9,10 @@ from users.views import (
     UserProfileUpdateView,
     UserRegisterView,
     UserStatisticListView,
+    UserListView,
+    UserDetailView,
+UserBlockView,
+UserUnblockView,
 )
 
 app_name = UsersConfig.name
@@ -24,4 +28,8 @@ urlpatterns = [
     path("profile/edit/<int:pk>/", UserProfileUpdateView.as_view(), name="profile_edit"),
     path("profile/edit_pass/", UserProfileUpdatePassView.as_view(), name="profile_edit_pass"),
     path("profile/statistic/", UserStatisticListView.as_view(), name="statistic"),
+    path("users_list/", UserListView.as_view(), name="users_list"),
+   path("user/<int:pk>/", UserDetailView.as_view(), name="users_detail"),
+    path("user/<int:pk>/block", UserBlockView.as_view(), name="block_user"),
+path("user/<int:pk>/unblock", UserUnblockView.as_view(), name="unblock_user"),
 ]

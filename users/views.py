@@ -1,7 +1,10 @@
 from django.contrib.auth.views import LogoutView, PasswordChangeView
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy, reverse
+from django.views import View
+from django.views.generic import CreateView, ListView, UpdateView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from mailing.models import MailingAttempt
 
@@ -77,3 +80,54 @@ class UserStatisticListView(LoginRequiredMixin, ListView):
         context["sent_messages_count"] = sent_messages_count
 
         return context
+
+
+class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """Класс для отображения списка пользователей сайта (только для менеджеров)"""
+    permission_required = "users.view_customuser"
+
+    model = CustomUser
+    template_name = "users_list.html"
+    paginate_by = 20
+    ordering = "email"
+    context_object_name = 'users'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get("search", "").strip()
+        if search_query:
+            queryset = queryset.filter(email__icontains=search_query)
+        return queryset
+
+
+class UserDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    """Класс для отображения деталей пользователя сайта (только для менеджеров)"""
+    permission_required = "users.view_customuser"
+
+    model = CustomUser
+    template_name = "users_detail.html"
+
+
+class UserBlockView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "users.block_user"
+
+    def post(self, request, pk):
+        user = get_object_or_404(CustomUser, pk=pk)
+        user.is_active = False
+        user.save(update_fields=["is_active"])
+
+        return HttpResponseRedirect(
+            reverse("users:users_list",)
+        )
+
+class UserUnblockView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "users.block_user"
+
+    def post(self, request, pk):
+        user = get_object_or_404(CustomUser, pk=pk)
+        user.is_active = True
+        user.save(update_fields=["is_active"])
+
+        return HttpResponseRedirect(
+            reverse("users:users_list", )
+        )
