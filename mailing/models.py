@@ -26,6 +26,9 @@ class Recipient(models.Model):
     class Meta:
         verbose_name = "Получатель рассылки"
         verbose_name_plural = "Получатели рассылок"
+        permissions = [
+            ("view_all_recipients", "Может просматривать всех получателей"),
+        ]
 
 
 class Message(models.Model):
@@ -73,6 +76,7 @@ class Mailing(models.Model):
         blank=True,
         verbose_name="Владелец рассылки",
     )
+    is_enabled = models.BooleanField(verbose_name="Включена ли рассылка", default=True)
 
     def __str__(self):
         return f"Рассылка #{self.pk} ({self.get_status_display()})"
@@ -80,6 +84,10 @@ class Mailing(models.Model):
     class Meta:
         verbose_name = "Рассылка"
         verbose_name_plural = "Рассылки"
+        permissions = [
+            ("view_all_mailings", "Может просматривать все рассылки"),
+            ("disable_mailing", "Может отключать рассылку"),
+        ]
 
     def update_status(self):
         now = timezone.now()

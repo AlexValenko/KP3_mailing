@@ -30,7 +30,7 @@
                     >
                         К списку
                     </a>
-                    {% if object %}
+                    {% if object.owner_id == user.pk %}
                         <a
                                 href="{% url 'mailing:recipient_update' object.pk %}"
                                 class="btn btn-outline-primary"

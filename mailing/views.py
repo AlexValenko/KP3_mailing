@@ -1,12 +1,14 @@
 from django.contrib import messages
 from django.db.models import ProtectedError
 from django.forms import forms
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+
 
 from .forms import MailingForm, MessageForm, RecipientForm
 from .models import Mailing, Message, Recipient
@@ -31,7 +33,7 @@ class HomeTemplateView(TemplateView):
     # ----------------------- CRUD Recipient ------------------------------
 
 
-class RecipientListView(ListView):
+class RecipientListView(LoginRequiredMixin, ListView):
     """Класс CBV для вывода списка получателей рассылки"""
 
     model = Recipient
@@ -42,7 +44,10 @@ class RecipientListView(ListView):
 
     def get_queryset(self):
         """Возвращает список получателей с учетом поиска."""
-        queryset = super().get_queryset()
+        if self.request.user.has_perm("mailing.view_all_recipients"):
+            queryset = super().get_queryset()
+        else:
+            queryset = super().get_queryset().filter(owner=self.request.user)
 
         search_query = self.request.GET.get("search", "").strip()
 
@@ -52,14 +57,21 @@ class RecipientListView(ListView):
         return queryset
 
 
-class RecipientDetailView(DetailView):
+class RecipientDetailView(LoginRequiredMixin, DetailView):
     """Класс CBV для просмотра детальной информации о получателе рассылки"""
 
     model = Recipient
     template_name = "recipient/recipient_detail_view.html"
 
+    def get_queryset(self):
 
-class RecipientCreateView(CreateView):
+        if self.request.user.has_perm("mailing.view_all_recipients"):
+            return super().get_queryset()
+
+        return super().get_queryset().filter(owner=self.request.user)
+
+
+class RecipientCreateView(LoginRequiredMixin, CreateView):
     """Класс CBV для создания получателя"""
 
     model = Recipient
@@ -72,7 +84,7 @@ class RecipientCreateView(CreateView):
         return super().form_valid(form)
 
 
-class RecipientUpdateView(UpdateView):
+class RecipientUpdateView(LoginRequiredMixin, UpdateView):
     """Класс CBV для редактирования получателя."""
 
     model = Recipient
@@ -80,19 +92,25 @@ class RecipientUpdateView(UpdateView):
     template_name = "recipient/recipient_form.html"
     success_url = reverse_lazy("mailing:recipient_list")
 
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
 
-class RecipientDeleteView(DeleteView):
+
+class RecipientDeleteView(LoginRequiredMixin, DeleteView):
     """Класс CBV для удаления получателя."""
 
     model = Recipient
     template_name = "recipient/recipient_confirm_delete.html"
     success_url = reverse_lazy("mailing:recipient_list")
 
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
+
 
 # ----------------------- CRUD Message ------------------------------
 
 
-class MessageListView(ListView):
+class MessageListView(LoginRequiredMixin, ListView):
     """Класс CBV - выводит список сообщений"""
 
     model = Message
@@ -102,7 +120,7 @@ class MessageListView(ListView):
     ordering = ("subject",)
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().filter(owner=self.request.user)
 
         search_query = self.request.GET.get("search", "").strip()
 
@@ -112,14 +130,17 @@ class MessageListView(ListView):
         return queryset
 
 
-class MessageDetailView(DetailView):
+class MessageDetailView(LoginRequiredMixin, DetailView):
     """Класс CBV - выводит детали сообщения"""
 
     model = Message
     template_name = "message/message_detail_view.html"
 
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
 
-class MessageCreateView(CreateView):
+
+class MessageCreateView(LoginRequiredMixin, CreateView):
     """Класс CBV - для создания сообщения"""
 
     model = Message
@@ -132,7 +153,7 @@ class MessageCreateView(CreateView):
         return super().form_valid(form)
 
 
-class MessageUpdateView(UpdateView):
+class MessageUpdateView(LoginRequiredMixin, UpdateView):
     """Класс CBV - для редактирования сообщения"""
 
     model = Message
@@ -140,13 +161,19 @@ class MessageUpdateView(UpdateView):
     template_name = "message/message_form.html"
     success_url = reverse_lazy("mailing:message_list")
 
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
 
-class MessageDeleteView(DeleteView):
+
+class MessageDeleteView(LoginRequiredMixin, DeleteView):
     """Класс CBV - для удаления сообщения."""
 
     model = Message
     template_name = "message/message_confirm_delete.html"
     success_url = reverse_lazy("mailing:message_list")
+
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
 
     def form_valid(self, form):
         try:
@@ -159,8 +186,8 @@ class MessageDeleteView(DeleteView):
 # ----------------------- CRUD Mailing ------------------------------
 
 
-class MailingListView(ListView):
-    """Класс CBV - выводит список рассылок."""
+class MailingListView(LoginRequiredMixin, ListView):
+    """Класс CBV - выводит список рассылок"""
 
     model = Mailing
     template_name = "mailing/mailing_list.html"
@@ -168,19 +195,35 @@ class MailingListView(ListView):
     paginate_by = 30
     ordering = ("-start_datetime",)
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
 
-class MailingDetailView(DetailView):
+        if self.request.user.has_perm("mailing.view_all_mailings"):
+            return queryset
+
+        return super().get_queryset().filter(owner=self.request.user)
+
+
+class MailingDetailView(LoginRequiredMixin, DetailView):
     model = Mailing
     template_name = "mailing/mailing_details_view.html"
     context_object_name = "mailing"
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        if self.request.user.has_perm("mailing.view_all_mailings"):
+            return queryset
+
+        return super().get_queryset().filter(owner=self.request.user)
+
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)
-        obj.update_status()  # ← пересчёт и сохранение статуса
+        obj.update_status()
         return obj
 
 
-class MailingCreateView(CreateView):
+class MailingCreateView(LoginRequiredMixin, CreateView):
     """Класс CBV - для создания рассылки"""
 
     model = Mailing
@@ -192,8 +235,13 @@ class MailingCreateView(CreateView):
         form.instance.owner = self.request.user
         return super().form_valid(form)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
-class MailingUpdateView(UpdateView):
+
+class MailingUpdateView(LoginRequiredMixin, UpdateView):
     """Класс CBV - для редактирования рассылки"""
 
     model = Mailing
@@ -201,36 +249,53 @@ class MailingUpdateView(UpdateView):
     template_name = "mailing/mailing_form.html"
     success_url = reverse_lazy("mailing:mailing_list")
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
+
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)
         obj.update_status()  # ← пересчёт и сохранение статуса
         return obj
 
 
-class MailingDeleteView(DeleteView):
+class MailingDeleteView(LoginRequiredMixin, DeleteView):
     """Класс CBV - для удаления рассылки"""
 
     model = Mailing
     template_name = "mailing/mailing_confirm_delete.html"
     success_url = reverse_lazy("mailing:mailing_list")
 
+    def get_queryset(self):
+        return super().get_queryset().filter(owner=self.request.user)
+
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)
         obj.update_status()  # ← пересчёт и сохранение статуса
         return obj
 
 
-class MailingSendView(View):
+class MailingSendView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
         mailing = get_object_or_404(Mailing, pk=pk)
-        mailing
-        return render(
+        if mailing.owner == self.request.user:
+            mailing.update_status()
+            return render(
             request, template_name="mailing/mailing_confirm_send.html", context={"pk": pk, "object": mailing}
-        )
+            )
+        else:
+            return HttpResponseForbidden ("Нет прав доступа")
 
     def post(self, request, pk):
         mailing = get_object_or_404(Mailing, pk=pk)
+
+        if mailing.owner != self.request.user:
+            return HttpResponseForbidden ("Нет прав доступа")
 
         # логика отправки писем
         try:
@@ -250,3 +315,33 @@ class MailingSendView(View):
         )
 
         return HttpResponseRedirect(reverse("mailing:mailing_detail_view", kwargs={"pk": pk}))
+
+class MailingDisableView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "mailing.disable_mailing"
+
+    def post(self, request, pk):
+        mailing = get_object_or_404(Mailing, pk=pk)
+        mailing.is_enabled = False
+        mailing.save(update_fields=["is_enabled"])
+
+        return HttpResponseRedirect(
+            reverse(
+                "mailing:mailing_detail_view",
+                kwargs={"pk": mailing.pk},
+            )
+        )
+
+class MailingEnableView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "mailing.disable_mailing"
+
+    def post(self, request, pk):
+        mailing = get_object_or_404(Mailing, pk=pk)
+        mailing.is_enabled = True
+        mailing.save(update_fields=["is_enabled"])
+
+        return HttpResponseRedirect(
+            reverse(
+                "mailing:mailing_detail_view",
+                kwargs={"pk": mailing.pk},
+            )
+        )

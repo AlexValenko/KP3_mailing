@@ -1,6 +1,7 @@
 from django.contrib.auth.views import LogoutView, PasswordChangeView
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from mailing.models import MailingAttempt
 
@@ -20,12 +21,15 @@ class UserLogoutView(LogoutView):
     """Контроллер для выхода пользователя из системы - перенаправляет на главную"""
 
 
-class UserProfileUpdateView(UpdateView):
+class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
     """Контроллер для редактирования профиля пользователя"""
 
     model = CustomUser
     form_class = CustomUserUpdateForm
     template_name = "update_profile.html"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(pk=self.request.user.pk)
 
     def get_success_url(self):
         return reverse_lazy(
@@ -34,10 +38,9 @@ class UserProfileUpdateView(UpdateView):
         )
 
 
-class UserProfileUpdatePassView(PasswordChangeView):
+class UserProfileUpdatePassView(LoginRequiredMixin, PasswordChangeView):
     """Контроллер для изменения пароля пользователя"""
 
-    model = CustomUser
     form_class = CustomUserUpdatePassForm
     template_name = "update_profile_pass.html"
 
@@ -48,7 +51,7 @@ class UserProfileUpdatePassView(PasswordChangeView):
         )
 
 
-class UserStatisticListView(ListView):
+class UserStatisticListView(LoginRequiredMixin, ListView):
     """Контроллер для показа статистики пользователя"""
 
     model = MailingAttempt

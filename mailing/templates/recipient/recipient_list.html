@@ -121,13 +121,13 @@
 
                         <td class="text-end text-nowrap">
 
-                                                        <a
+                            <a
                                     href="{% url 'mailing:recipient_details' recipient.pk %}"
                                     class="btn btn-sm btn-outline-primary"
                             >
                                 Просмотр
                             </a>
-
+                            {% if recipient.owner_id == user.pk %}
                             <a
                                     href="{% url 'mailing:recipient_update' recipient.pk %}"
                                     class="btn btn-sm btn-outline-primary"
@@ -141,6 +141,7 @@
                             >
                                 Удалить
                             </a>
+                            {% endif %}
 
                         </td>
 

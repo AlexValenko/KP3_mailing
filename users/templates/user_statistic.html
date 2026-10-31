@@ -110,13 +110,13 @@
                     {% for attempt in attempts %}
                     <tr>
                         <td>
-                            {{ attempt.id}}
+                            {{ attempt.mailing_id }}
                         </td>
                         <td>
                             {{ attempt.attempted_at }}
                         </td>
                         <td>
-                            {{ attempt.status }}
+                            {{ attempt.get_status_display }}
                         </td>
                         <td>
                             {{ attempt.server_response }}
@@ -152,7 +152,7 @@
             <li class="page-item">
                 <a
                         class="page-link"
-                        href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                        href="?page={{ num }}"
                 >
                     Назад
                 </a>
@@ -184,7 +184,7 @@
 
                 <a
                         class="page-link"
-                        href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                        href="?page={{ num }}"
                 >
                     {{ num }}
                 </a>
@@ -202,7 +202,7 @@
 
                 <a
                         class="page-link"
-                        href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                        href="?page={{ num }}"
                 >
                     Вперёд
                 </a>

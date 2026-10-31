@@ -13,6 +13,9 @@ def send_email(mailing):
     end_datetime = mailing.end_datetime
     now = timezone.now()
 
+    if not mailing.is_enabled:
+        raise forms.ValidationError("Рассылка отключена.")
+
     if not start_datetime <= now <= end_datetime:
         raise forms.ValidationError("Отправка недоступна: текущее время вне периода рассылки.")
 
