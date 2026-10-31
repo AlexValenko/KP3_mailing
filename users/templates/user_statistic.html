@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика пользователя{% endblock %}
+
+{% block content %}
+<main class="container py-4">
+
+    <!-- Заголовок страницы -->
+    <div class="mb-4">
+        <h1 class="h2">Статистика пользователя</h1>
+
+        <p class="text-muted mb-0">
+            {{user}}
+        </p>
+    </div>
+
+    <!-- СТАТИСТИКА  ПОЛЬЗОВАТЕЛЯ  -->
+
+    <div class="row g-4">
+
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+
+                    <h2 class="h6 text-muted">
+                        Количество успешных попыток
+                    </h2>
+
+                    <p class="display-6 fw-bold mb-0">
+                        {% if success_count %}
+                        {{success_count}}
+                        {% else %}
+                        0
+                        {% endif %}
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+
+                    <h2 class="h6 text-muted">
+                        Количество неуспешных попыток
+                    </h2>
+
+                    <p class="display-6 fw-bold mb-0">
+                        {% if failed_count %}
+                        {{failed_count}}
+                        {% else %}
+                        0
+                        {% endif %}
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+
+                    <h2 class="h6 text-muted">
+                        Количество отправленных сообщений
+                    </h2>
+
+                    <p class="display-6 fw-bold mb-0">
+                        {% if sent_messages_count %}
+                        {{sent_messages_count}}
+                        {% else %}
+                        0
+                        {% endif %}
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ПОПЫТКИ СПИСКОМ        -->
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            {% if attempts %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">
+                            Рассылка
+                        </th>
+                        <th scope="col">
+                            Дата и время попытки
+                        </th>
+                        <th scope="col">
+                            Результат
+                        </th>
+                        <th scope="col">
+                            Описание
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for attempt in attempts %}
+                    <tr>
+                        <td>
+                            {{ attempt.id}}
+                        </td>
+                        <td>
+                            {{ attempt.attempted_at }}
+                        </td>
+                        <td>
+                            {{ attempt.status }}
+                        </td>
+                        <td>
+                            {{ attempt.server_response }}
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+
+            <!-- Попытки НЕ НАЙДЕНЫ                              -->
+
+            <div class="p-4 text-center">
+                <p class="text-muted mb-3">
+                    Попытки рассылки не найдены.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ПАГИНАЦИЯ                                             -->
+
+    {% if is_paginated %}
+    <nav
+            aria-label="Навигация по страницам"
+            class="mt-4"
+    >
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a
+                        class="page-link"
+                        href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                >
+                    Назад
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                        <span class="page-link">
+                            Назад
+                        </span>
+            </li>
+
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+
+            {% if page_obj.number == num %}
+
+            <li class="page-item active">
+
+                            <span class="page-link">
+                                {{ num }}
+                            </span>
+
+            </li>
+
+            {% else %}
+
+            <li class="page-item">
+
+                <a
+                        class="page-link"
+                        href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                >
+                    {{ num }}
+                </a>
+
+            </li>
+
+            {% endif %}
+
+            {% endfor %}
+
+
+            {% if page_obj.has_next %}
+
+            <li class="page-item">
+
+                <a
+                        class="page-link"
+                        href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                >
+                    Вперёд
+                </a>
+
+            </li>
+
+            {% else %}
+
+            <li class="page-item disabled">
+
+                        <span class="page-link">
+                            Вперёд
+                        </span>
+
+            </li>
+
+            {% endif %}
+
+        </ul>
+
+    </nav>
+
+    {% endif %}
+
+
+</main>
+{% endblock %}

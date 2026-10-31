@@ -1,7 +1,7 @@
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, UserCreationForm
 from django.forms import ModelForm
+
 from users.models import CustomUser
-from django.contrib.auth.forms import PasswordChangeForm
 
 
 class StyleMixin:
@@ -86,6 +86,7 @@ class CustomUserUpdateForm(StyleMixin, ModelForm):
             "phone_number": "Номер телефона",
             "avatar": "Аватар",
         }
+
 
 class CustomUserUpdatePassForm(StyleMixin, PasswordChangeForm):
     field_styles = {

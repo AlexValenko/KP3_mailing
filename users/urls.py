@@ -3,7 +3,13 @@ from django.urls import path
 
 from users.apps import UsersConfig
 from users.forms import CustomAuthenticationForm
-from users.views import UserRegisterView, UserLogoutView, UserProfileUpdateView, UserProfileUpdatePassView
+from users.views import (
+    UserLogoutView,
+    UserProfileUpdatePassView,
+    UserProfileUpdateView,
+    UserRegisterView,
+    UserStatisticListView,
+)
 
 app_name = UsersConfig.name
 
@@ -13,8 +19,9 @@ urlpatterns = [
         LoginView.as_view(template_name="login.html", authentication_form=CustomAuthenticationForm),
         name="login",
     ),
-    path("logout/", UserLogoutView.as_view(next_page='mailing:home'),name="logout"),
+    path("logout/", UserLogoutView.as_view(next_page="mailing:home"), name="logout"),
     path("register/", UserRegisterView.as_view(), name="register"),
     path("profile/edit/<int:pk>/", UserProfileUpdateView.as_view(), name="profile_edit"),
     path("profile/edit_pass/", UserProfileUpdatePassView.as_view(), name="profile_edit_pass"),
+    path("profile/statistic/", UserStatisticListView.as_view(), name="statistic"),
 ]
