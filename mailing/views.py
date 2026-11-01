@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.cache import cache
 
 
 from .forms import MailingForm, MessageForm, RecipientForm
@@ -22,12 +23,25 @@ class HomeTemplateView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["mailing_count"] = Mailing.objects.all().count()
-        now = timezone.now()
-        started_mailings = Mailing.objects.filter(status="started")
-        active_mailings = started_mailings.filter(start_datetime__lte=now, end_datetime__gte=now)
-        context["active_mailings_count"] = active_mailings.count()
-        context["unique_recipients_count"] = Recipient.objects.all().count()
+
+        cache_key = "home_statistics"
+        data = cache.get(cache_key)
+
+        if data is None:
+            now = timezone.now()
+            active_mailings = Mailing.objects.filter(
+                status="started",
+                start_datetime__lte=now,
+                end_datetime__gte=now,
+            )
+            data = {
+                "mailing_count": Mailing.objects.count(),
+                "active_mailings_count": active_mailings.count(),
+                "unique_recipients_count": Recipient.objects.count(),
+            }
+
+            cache.set(cache_key, data, timeout=60)
+        context.update(data)
         return context
 
     # ----------------------- CRUD Recipient ------------------------------

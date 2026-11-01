@@ -109,10 +109,15 @@ class UserDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
 
 class UserBlockView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    """Действие по блокировке пользователя. Не дает заблокировать себя или суперпользователя"""
     permission_required = "users.block_user"
 
     def post(self, request, pk):
         user = get_object_or_404(CustomUser, pk=pk)
+        if user == request.user or user.is_superuser:
+            return HttpResponseRedirect(
+                reverse("users:users_list", )
+            )
         user.is_active = False
         user.save(update_fields=["is_active"])
 
@@ -121,6 +126,7 @@ class UserBlockView(LoginRequiredMixin, PermissionRequiredMixin, View):
         )
 
 class UserUnblockView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    """Действие по разблокировке пользователя"""
     permission_required = "users.block_user"
 
     def post(self, request, pk):
