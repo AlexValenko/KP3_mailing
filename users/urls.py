@@ -11,8 +11,8 @@ from users.views import (
     UserStatisticListView,
     UserListView,
     UserDetailView,
-UserBlockView,
-UserUnblockView,
+    UserBlockView,
+    UserUnblockView, email_verification,
 )
 
 app_name = UsersConfig.name
@@ -32,4 +32,5 @@ urlpatterns = [
    path("user/<int:pk>/", UserDetailView.as_view(), name="users_detail"),
     path("user/<int:pk>/block", UserBlockView.as_view(), name="block_user"),
 path("user/<int:pk>/unblock", UserUnblockView.as_view(), name="unblock_user"),
+    path("email_confirm/<str:token>/", email_verification, name="email_confirm")
 ]

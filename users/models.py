@@ -22,6 +22,12 @@ class CustomUser(AbstractUser):
         verbose_name="Изображение",
         help_text="Загрузите изображение (необязательно)",
     )
+    token = models.CharField(max_length=100, verbose_name="Token", blank=True, null=True)
+
+    email_verified = models.BooleanField(
+        default=False,
+        verbose_name="Email подтверждён",
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

@@ -10,6 +10,13 @@
                 <div class="card-body p-4">
                     <h1 class="h3 mb-4">Редактировать профиль</h1>
 
+                    <p class="mb-4">
+                        <strong>Email:</strong> {{ object.email }}
+                    </p>
+                    <p class="mb-4">
+                        Чтобы изменить ваш email, нужно выполнить повторную регистрацию
+                    </p>
+
                     <div class="card-body">
                         {% if user.avatar %}
                         <div class="mb-3">

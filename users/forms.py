@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, UserCreationForm
 from django.forms import ModelForm
-
+from django.core.exceptions import ValidationError
 from users.models import CustomUser
 
 
@@ -56,12 +56,21 @@ class CustomAuthenticationForm(StyleMixin, AuthenticationForm):
         "password": "Введите пароль",
     }
 
+    def confirm_login_allowed(self, user):
+        super().confirm_login_allowed(user)
+
+        if not user.email_verified:
+            raise ValidationError(
+                "Подтвердите email по ссылке из письма.",
+                code="email_not_verified",
+            )
+
+
 
 class CustomUserUpdateForm(StyleMixin, ModelForm):
     """Форма редактирования профиля пользователя."""
 
     field_styles = {
-        "email": "Введите Email",
         "phone_number": "Введите номер телефона",
         "avatar": "Загрузите изображение",
         "user_country": "Введите название страны",
@@ -72,7 +81,6 @@ class CustomUserUpdateForm(StyleMixin, ModelForm):
     class Meta:
         model = CustomUser
         fields = (
-            "email",
             "first_name",
             "last_name",
             "phone_number",
@@ -80,7 +88,6 @@ class CustomUserUpdateForm(StyleMixin, ModelForm):
         )
 
         labels = {
-            "email": "Email",
             "first_name": "Имя",
             "last_name": "Фамилия",
             "phone_number": "Номер телефона",

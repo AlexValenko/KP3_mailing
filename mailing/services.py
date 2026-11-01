@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.forms import forms
 from django.utils import timezone
 
+from config.settings import DEFAULT_FROM_EMAIL
 from mailing.models import MailingAttempt
 
 
@@ -31,7 +32,7 @@ def send_email(mailing):
     for recipient in recipients:
         subject = mailing.message.subject
         message = mailing.message.body
-        from_email = "my_mail@mail.ru"
+        from_email = DEFAULT_FROM_EMAIL
         recipients_list = [
             recipient.email,
         ]

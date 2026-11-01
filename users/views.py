@@ -1,10 +1,14 @@
+import secrets
 from django.contrib.auth.views import LogoutView, PasswordChangeView
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import View
+from django.core.mail import send_mail
 from django.views.generic import CreateView, ListView, UpdateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.conf import settings
+from users.mixins import EmailVerifiedMixin
 
 from mailing.models import MailingAttempt
 
@@ -19,12 +23,41 @@ class UserRegisterView(CreateView):
     template_name = "register.html"
     success_url = reverse_lazy("users:login")
 
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.email_verified = False
+        token = secrets.token_hex(16)
+        user.token = token
+        user.save()
+        self.object = user
+        path = reverse(
+            "users:email_confirm",
+            kwargs={"token": token},
+        )
+        url = self.request.build_absolute_uri(path)
+        send_mail(
+            subject='Подтверждение почты',
+            message=f'Для подтверждения регистрации на сайте "Рассылка", перейдите по ссылке {url}. Если вы не регистрировались на этом сайте, проигнорируйте это письмо. Данное письмо не требует ответа',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email,]
+        )
+
+        return redirect(self.get_success_url())
+
+def email_verification(request, token):
+    """Функция верификации почты пользователя"""
+    user = get_object_or_404(CustomUser, token=token)
+    user.email_verified = True
+    user.token = None
+    user.save(update_fields=["email_verified", "token"])
+    return redirect(reverse('users:login'))
+
 
 class UserLogoutView(LogoutView):
     """Контроллер для выхода пользователя из системы - перенаправляет на главную"""
 
 
-class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
+class UserProfileUpdateView(EmailVerifiedMixin, LoginRequiredMixin, UpdateView):
     """Контроллер для редактирования профиля пользователя"""
 
     model = CustomUser
@@ -41,7 +74,7 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
         )
 
 
-class UserProfileUpdatePassView(LoginRequiredMixin, PasswordChangeView):
+class UserProfileUpdatePassView(EmailVerifiedMixin, LoginRequiredMixin, PasswordChangeView):
     """Контроллер для изменения пароля пользователя"""
 
     form_class = CustomUserUpdatePassForm
@@ -54,7 +87,7 @@ class UserProfileUpdatePassView(LoginRequiredMixin, PasswordChangeView):
         )
 
 
-class UserStatisticListView(LoginRequiredMixin, ListView):
+class UserStatisticListView(EmailVerifiedMixin, LoginRequiredMixin, ListView):
     """Контроллер для показа статистики пользователя"""
 
     model = MailingAttempt
@@ -82,7 +115,7 @@ class UserStatisticListView(LoginRequiredMixin, ListView):
         return context
 
 
-class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class UserListView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """Класс для отображения списка пользователей сайта (только для менеджеров)"""
     permission_required = "users.view_customuser"
 
@@ -100,7 +133,7 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return queryset
 
 
-class UserDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class UserDetailView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """Класс для отображения деталей пользователя сайта (только для менеджеров)"""
     permission_required = "users.view_customuser"
 
@@ -108,7 +141,7 @@ class UserDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     template_name = "users_detail.html"
 
 
-class UserBlockView(LoginRequiredMixin, PermissionRequiredMixin, View):
+class UserBlockView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, View):
     """Действие по блокировке пользователя. Не дает заблокировать себя или суперпользователя"""
     permission_required = "users.block_user"
 
@@ -125,7 +158,7 @@ class UserBlockView(LoginRequiredMixin, PermissionRequiredMixin, View):
             reverse("users:users_list",)
         )
 
-class UserUnblockView(LoginRequiredMixin, PermissionRequiredMixin, View):
+class UserUnblockView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, View):
     """Действие по разблокировке пользователя"""
     permission_required = "users.block_user"
 

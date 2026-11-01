@@ -9,6 +9,7 @@ from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.cache import cache
+from users.mixins import EmailVerifiedMixin
 
 
 from .forms import MailingForm, MessageForm, RecipientForm
@@ -47,7 +48,7 @@ class HomeTemplateView(TemplateView):
     # ----------------------- CRUD Recipient ------------------------------
 
 
-class RecipientListView(LoginRequiredMixin, ListView):
+class RecipientListView(EmailVerifiedMixin, LoginRequiredMixin, ListView):
     """Класс CBV для вывода списка получателей рассылки"""
 
     model = Recipient
@@ -71,7 +72,7 @@ class RecipientListView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class RecipientDetailView(LoginRequiredMixin, DetailView):
+class RecipientDetailView(EmailVerifiedMixin, LoginRequiredMixin, DetailView):
     """Класс CBV для просмотра детальной информации о получателе рассылки"""
 
     model = Recipient
@@ -85,7 +86,7 @@ class RecipientDetailView(LoginRequiredMixin, DetailView):
         return super().get_queryset().filter(owner=self.request.user)
 
 
-class RecipientCreateView(LoginRequiredMixin, CreateView):
+class RecipientCreateView(EmailVerifiedMixin, LoginRequiredMixin, CreateView):
     """Класс CBV для создания получателя"""
 
     model = Recipient
@@ -98,7 +99,7 @@ class RecipientCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class RecipientUpdateView(LoginRequiredMixin, UpdateView):
+class RecipientUpdateView(EmailVerifiedMixin, LoginRequiredMixin, UpdateView):
     """Класс CBV для редактирования получателя."""
 
     model = Recipient
@@ -110,7 +111,7 @@ class RecipientUpdateView(LoginRequiredMixin, UpdateView):
         return super().get_queryset().filter(owner=self.request.user)
 
 
-class RecipientDeleteView(LoginRequiredMixin, DeleteView):
+class RecipientDeleteView(EmailVerifiedMixin, LoginRequiredMixin, DeleteView):
     """Класс CBV для удаления получателя."""
 
     model = Recipient
@@ -124,7 +125,7 @@ class RecipientDeleteView(LoginRequiredMixin, DeleteView):
 # ----------------------- CRUD Message ------------------------------
 
 
-class MessageListView(LoginRequiredMixin, ListView):
+class MessageListView(EmailVerifiedMixin, LoginRequiredMixin, ListView):
     """Класс CBV - выводит список сообщений"""
 
     model = Message
@@ -144,7 +145,7 @@ class MessageListView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class MessageDetailView(LoginRequiredMixin, DetailView):
+class MessageDetailView(EmailVerifiedMixin, LoginRequiredMixin, DetailView):
     """Класс CBV - выводит детали сообщения"""
 
     model = Message
@@ -154,7 +155,7 @@ class MessageDetailView(LoginRequiredMixin, DetailView):
         return super().get_queryset().filter(owner=self.request.user)
 
 
-class MessageCreateView(LoginRequiredMixin, CreateView):
+class MessageCreateView(EmailVerifiedMixin, LoginRequiredMixin, CreateView):
     """Класс CBV - для создания сообщения"""
 
     model = Message
@@ -167,7 +168,7 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class MessageUpdateView(LoginRequiredMixin, UpdateView):
+class MessageUpdateView(EmailVerifiedMixin, LoginRequiredMixin, UpdateView):
     """Класс CBV - для редактирования сообщения"""
 
     model = Message
@@ -179,7 +180,7 @@ class MessageUpdateView(LoginRequiredMixin, UpdateView):
         return super().get_queryset().filter(owner=self.request.user)
 
 
-class MessageDeleteView(LoginRequiredMixin, DeleteView):
+class MessageDeleteView(EmailVerifiedMixin, LoginRequiredMixin, DeleteView):
     """Класс CBV - для удаления сообщения."""
 
     model = Message
@@ -200,7 +201,7 @@ class MessageDeleteView(LoginRequiredMixin, DeleteView):
 # ----------------------- CRUD Mailing ------------------------------
 
 
-class MailingListView(LoginRequiredMixin, ListView):
+class MailingListView(EmailVerifiedMixin, LoginRequiredMixin, ListView):
     """Класс CBV - выводит список рассылок"""
 
     model = Mailing
@@ -218,7 +219,7 @@ class MailingListView(LoginRequiredMixin, ListView):
         return super().get_queryset().filter(owner=self.request.user)
 
 
-class MailingDetailView(LoginRequiredMixin, DetailView):
+class MailingDetailView(EmailVerifiedMixin, LoginRequiredMixin, DetailView):
     model = Mailing
     template_name = "mailing/mailing_details_view.html"
     context_object_name = "mailing"
@@ -237,7 +238,7 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
         return obj
 
 
-class MailingCreateView(LoginRequiredMixin, CreateView):
+class MailingCreateView(EmailVerifiedMixin, LoginRequiredMixin, CreateView):
     """Класс CBV - для создания рассылки"""
 
     model = Mailing
@@ -255,7 +256,7 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
 
-class MailingUpdateView(LoginRequiredMixin, UpdateView):
+class MailingUpdateView(EmailVerifiedMixin, LoginRequiredMixin, UpdateView):
     """Класс CBV - для редактирования рассылки"""
 
     model = Mailing
@@ -277,7 +278,7 @@ class MailingUpdateView(LoginRequiredMixin, UpdateView):
         return obj
 
 
-class MailingDeleteView(LoginRequiredMixin, DeleteView):
+class MailingDeleteView(EmailVerifiedMixin, LoginRequiredMixin, DeleteView):
     """Класс CBV - для удаления рассылки"""
 
     model = Mailing
@@ -293,7 +294,7 @@ class MailingDeleteView(LoginRequiredMixin, DeleteView):
         return obj
 
 
-class MailingSendView(LoginRequiredMixin, View):
+class MailingSendView(EmailVerifiedMixin, LoginRequiredMixin, View):
 
     def get(self, request, pk):
         mailing = get_object_or_404(Mailing, pk=pk)
@@ -330,7 +331,7 @@ class MailingSendView(LoginRequiredMixin, View):
 
         return HttpResponseRedirect(reverse("mailing:mailing_detail_view", kwargs={"pk": pk}))
 
-class MailingDisableView(LoginRequiredMixin, PermissionRequiredMixin, View):
+class MailingDisableView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "mailing.disable_mailing"
 
     def post(self, request, pk):
@@ -345,7 +346,7 @@ class MailingDisableView(LoginRequiredMixin, PermissionRequiredMixin, View):
             )
         )
 
-class MailingEnableView(LoginRequiredMixin, PermissionRequiredMixin, View):
+class MailingEnableView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "mailing.disable_mailing"
 
     def post(self, request, pk):
