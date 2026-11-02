@@ -1,18 +1,21 @@
 import secrets
+from smtplib import SMTPException
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.views import LogoutView, PasswordChangeView
+from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.core.mail import send_mail
-from django.views.generic import CreateView, ListView, UpdateView, DetailView
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.conf import settings
-from users.mixins import EmailVerifiedMixin
+from django.views.generic import CreateView, DetailView, FormView, ListView, UpdateView
 
 from mailing.models import MailingAttempt
+from users.mixins import EmailVerifiedMixin
 
-from .forms import CustomUserCreationForm, CustomUserUpdateForm, CustomUserUpdatePassForm
+from .forms import CustomUserCreationForm, CustomUserUpdateForm, CustomUserUpdatePassForm, ResendVerificationForm
 from .models import CustomUser
 
 
@@ -36,13 +39,17 @@ class UserRegisterView(CreateView):
         )
         url = self.request.build_absolute_uri(path)
         send_mail(
-            subject='Подтверждение почты',
-            message=f'Для подтверждения регистрации на сайте "Рассылка", перейдите по ссылке {url}. Если вы не регистрировались на этом сайте, проигнорируйте это письмо. Данное письмо не требует ответа',
+            subject="Подтверждение почты",
+            message=f"""Для подтверждения регистрации на сайте "Рассылка", перейдите по ссылке {url}.
+            Если вы не регистрировались на этом сайте, проигнорируйте это письмо. Данное письмо не требует ответа""",
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email,]
+            recipient_list=[
+                user.email,
+            ],
         )
 
         return redirect(self.get_success_url())
+
 
 def email_verification(request, token):
     """Функция верификации почты пользователя"""
@@ -50,7 +57,7 @@ def email_verification(request, token):
     user.email_verified = True
     user.token = None
     user.save(update_fields=["email_verified", "token"])
-    return redirect(reverse('users:login'))
+    return redirect(reverse("users:login"))
 
 
 class UserLogoutView(LogoutView):
@@ -117,13 +124,14 @@ class UserStatisticListView(EmailVerifiedMixin, LoginRequiredMixin, ListView):
 
 class UserListView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """Класс для отображения списка пользователей сайта (только для менеджеров)"""
+
     permission_required = "users.view_customuser"
 
     model = CustomUser
     template_name = "users_list.html"
     paginate_by = 20
     ordering = "email"
-    context_object_name = 'users'
+    context_object_name = "users"
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -135,6 +143,7 @@ class UserListView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMix
 
 class UserDetailView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     """Класс для отображения деталей пользователя сайта (только для менеджеров)"""
+
     permission_required = "users.view_customuser"
 
     model = CustomUser
@@ -143,23 +152,30 @@ class UserDetailView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredM
 
 class UserBlockView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, View):
     """Действие по блокировке пользователя. Не дает заблокировать себя или суперпользователя"""
+
     permission_required = "users.block_user"
 
     def post(self, request, pk):
         user = get_object_or_404(CustomUser, pk=pk)
         if user == request.user or user.is_superuser:
             return HttpResponseRedirect(
-                reverse("users:users_list", )
+                reverse(
+                    "users:users_list",
+                )
             )
         user.is_active = False
         user.save(update_fields=["is_active"])
 
         return HttpResponseRedirect(
-            reverse("users:users_list",)
+            reverse(
+                "users:users_list",
+            )
         )
+
 
 class UserUnblockView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, View):
     """Действие по разблокировке пользователя"""
+
     permission_required = "users.block_user"
 
     def post(self, request, pk):
@@ -168,5 +184,54 @@ class UserUnblockView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequired
         user.save(update_fields=["is_active"])
 
         return HttpResponseRedirect(
-            reverse("users:users_list", )
+            reverse(
+                "users:users_list",
+            )
         )
+
+
+class ResendVerificationView(FormView):
+    form_class = ResendVerificationForm
+    template_name = "resend_verification.html"
+    success_url = reverse_lazy("users:login")
+
+    def form_valid(self, form):
+        email = form.cleaned_data["email"]
+        user = CustomUser.objects.filter(email=email).first()
+
+        if user is not None and user.is_active and not user.email_verified:
+            token = secrets.token_hex(16)
+            user.token = token
+            user.save(update_fields=["token"])
+            path = reverse(
+                "users:email_confirm",
+                kwargs={"token": token},
+            )
+            url = self.request.build_absolute_uri(path)
+
+            try:
+                result = send_mail(
+                    subject="Подтверждение почты",
+                    message=f"""Для подтверждения регистрации на сайте "Рассылка", перейдите по ссылке {url}.
+                    Если вы не регистрировались на этом сайте, проигнорируйте это письмо.
+                    Данное письмо не требует ответа""",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[
+                        user.email,
+                    ],
+                )
+                if result != 1:
+                    form.add_error(None, "Не удалось отправить письмо. Попробуйте позже.")
+                    return self.form_invalid(form)
+            except (SMTPException, OSError) as e:
+                form.add_error(None, f"Не удалось отправить письмо: {e}")
+                return self.form_invalid(form)
+
+        messages.info(
+            self.request,
+            "Если для этого адреса есть активный аккаунт "
+            "с неподтверждённой почтой, мы отправили письмо. "
+            "Проверьте также папку «Спам».",
+        )
+
+        return super().form_valid(form)

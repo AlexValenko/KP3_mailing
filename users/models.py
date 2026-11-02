@@ -2,10 +2,13 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
+from .managers import CustomUserManager
+
 
 class CustomUser(AbstractUser):
     """Класс описания пользователей сайта"""
 
+    objects = CustomUserManager()
     username = None
     email = models.EmailField(unique=True, verbose_name="Email")
     phone_number = PhoneNumberField(

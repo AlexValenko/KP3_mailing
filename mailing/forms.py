@@ -134,8 +134,6 @@ class MailingForm(forms.ModelForm):
             self.fields["message"].queryset = Message.objects.none()
             self.fields["recipients"].queryset = Recipient.objects.none()
 
-
-
     def clean_start_datetime(self):
         """Проверяет, что start_time не может быть в прошлом."""
         start_datetime = self.cleaned_data.get("start_datetime")

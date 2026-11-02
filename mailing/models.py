@@ -1,7 +1,6 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from users.models import CustomUser
-from django.conf import settings
 
 
 class Recipient(models.Model):
@@ -18,7 +17,6 @@ class Recipient(models.Model):
         blank=True,
         verbose_name="Владелец получателя",
     )
-
 
     def __str__(self):
         return f"{self.full_name} ({self.email})"

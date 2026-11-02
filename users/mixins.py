@@ -10,8 +10,6 @@ class EmailVerifiedMixin(AccessMixin):
             return self.handle_no_permission()
 
         if not request.user.email_verified:
-            raise PermissionDenied(
-                "Для доступа необходимо подтвердить email."
-            )
+            raise PermissionDenied("Для доступа необходимо подтвердить email.")
 
         return super().dispatch(request, *args, **kwargs)

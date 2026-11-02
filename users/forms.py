@@ -1,13 +1,17 @@
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, UserCreationForm
-from django.forms import ModelForm
+from django import forms
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, SetPasswordForm, UserCreationForm
 from django.core.exceptions import ValidationError
+from django.forms import ModelForm
+
 from users.models import CustomUser
 
 
 class StyleMixin:
     """Общая стилизация полей форм Bootstrap."""
 
-    field_styles = {}
+    field_styles = {
+        "email": "Введите email, указанный при регистрации",
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,6 +60,22 @@ class CustomAuthenticationForm(StyleMixin, AuthenticationForm):
         "password": "Введите пароль",
     }
 
+    def clean(self):
+        email = self.cleaned_data.get("username")
+        password = self.cleaned_data.get("password")
+
+        if email and password:
+            user = CustomUser.objects.filter(email=email).first()
+
+            if user is not None and not user.is_active:
+                if user.check_password(password):
+                    raise ValidationError(
+                        "Ваш аккаунт заблокирован. " "Обратитесь к администратору сервиса.",
+                        code="account_blocked",
+                    )
+
+        return super().clean()
+
     def confirm_login_allowed(self, user):
         super().confirm_login_allowed(user)
 
@@ -64,7 +84,6 @@ class CustomAuthenticationForm(StyleMixin, AuthenticationForm):
                 "Подтвердите email по ссылке из письма.",
                 code="email_not_verified",
             )
-
 
 
 class CustomUserUpdateForm(StyleMixin, ModelForm):
@@ -98,6 +117,23 @@ class CustomUserUpdateForm(StyleMixin, ModelForm):
 class CustomUserUpdatePassForm(StyleMixin, PasswordChangeForm):
     field_styles = {
         "old_password": "Введите старый пароль",
+        "new_password1": "Введите новый пароль",
+        "new_password2": "Повторите новый пароль",
+    }
+
+
+class ResendVerificationForm(StyleMixin, forms.Form):
+    email = forms.EmailField(label="Email")
+
+    field_styles = {
+        "email": "Введите email, указанный при регистрации",
+    }
+
+
+class CustomSetPasswordForm(StyleMixin, SetPasswordForm):
+    """Форма нового пароля при восстановлении доступа."""
+
+    field_styles = {
         "new_password1": "Введите новый пароль",
         "new_password2": "Повторите новый пароль",
     }

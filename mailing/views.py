@@ -1,16 +1,16 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.cache import cache
 from django.db.models import ProtectedError
 from django.forms import forms
-from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.core.cache import cache
-from users.mixins import EmailVerifiedMixin
 
+from users.mixins import EmailVerifiedMixin
 
 from .forms import MailingForm, MessageForm, RecipientForm
 from .models import Mailing, Message, Recipient
@@ -301,16 +301,16 @@ class MailingSendView(EmailVerifiedMixin, LoginRequiredMixin, View):
         if mailing.owner == self.request.user:
             mailing.update_status()
             return render(
-            request, template_name="mailing/mailing_confirm_send.html", context={"pk": pk, "object": mailing}
+                request, template_name="mailing/mailing_confirm_send.html", context={"pk": pk, "object": mailing}
             )
         else:
-            return HttpResponseForbidden ("Нет прав доступа")
+            return HttpResponseForbidden("Нет прав доступа")
 
     def post(self, request, pk):
         mailing = get_object_or_404(Mailing, pk=pk)
 
         if mailing.owner != self.request.user:
-            return HttpResponseForbidden ("Нет прав доступа")
+            return HttpResponseForbidden("Нет прав доступа")
 
         # логика отправки писем
         try:
@@ -331,6 +331,7 @@ class MailingSendView(EmailVerifiedMixin, LoginRequiredMixin, View):
 
         return HttpResponseRedirect(reverse("mailing:mailing_detail_view", kwargs={"pk": pk}))
 
+
 class MailingDisableView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "mailing.disable_mailing"
 
@@ -345,6 +346,7 @@ class MailingDisableView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequi
                 kwargs={"pk": mailing.pk},
             )
         )
+
 
 class MailingEnableView(EmailVerifiedMixin, LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "mailing.disable_mailing"
