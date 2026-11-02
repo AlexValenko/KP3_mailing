@@ -65,25 +65,26 @@
 
                 <td class="text-end text-nowrap">
                     <a
-                                    href="{% url 'mailing:mailing_detail_view' mailing.pk %}"
-                                    class="btn btn-sm btn-outline-primary"
-                            >
-                                Просмотр
-                            </a>
+                            href="{% url 'mailing:mailing_detail_view' mailing.pk %}"
+                            class="btn btn-sm btn-outline-primary"
+                    >
+                        Просмотр
+                    </a>
+                    {% if mailing.owner_id == user.pk %}
+                    <a
+                            href="{% url 'mailing:mailing_update' mailing.pk %}"
+                            class="btn btn-sm btn-outline-primary"
+                    >
+                        Редактировать
+                    </a>
 
-                            <a
-                                    href="{% url 'mailing:mailing_update' mailing.pk %}"
-                                    class="btn btn-sm btn-outline-primary"
-                            >
-                                Редактировать
-                            </a>
-
-                            <a
-                                    href="{% url 'mailing:mailing_delete' mailing.pk %}"
-                                    class="btn btn-sm btn-outline-danger"
-                            >
-                                Удалить
-                            </a>
+                    <a
+                            href="{% url 'mailing:mailing_delete' mailing.pk %}"
+                            class="btn btn-sm btn-outline-danger"
+                    >
+                        Удалить
+                    </a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Пользователи{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <!-- ЗАГОЛОВОК СТРАНИЦЫ                                    -->
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="h2 mb-1">
+                Пользователи
+            </h1>
+
+            <p class="text-muted mb-0">
+                Управление пользователями сайта (режим менеджера)
+            </p>
+        </div>
+    </div>
+
+    <!-- ПОИСК                                                 -->
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form method="get">
+                <div class="row g-2">
+                    <div class="col-12 col-md">
+                        <label
+                                for="search"
+                                class="visually-hidden"
+                        >
+                            Поиск по email
+                        </label>
+
+                        <input
+                                type="text"
+                                name="search"
+                                id="search"
+                                class="form-control"
+                                placeholder="Поиск по email..."
+                                value="{{ request.GET.search|default:'' }}"
+                        >
+                    </div>
+
+                    <div class="col-12 col-md-auto">
+                        <button
+                                type="submit"
+                                class="btn btn-primary w-100"
+                        >
+                            Найти
+                        </button>
+                    </div>
+
+                    {% if request.GET.search %}
+
+                    <div class="col-12 col-md-auto">
+                        <a
+                                href="{% url 'users:users_list' %}"
+                                class="btn btn-outline-secondary w-100"
+                        >
+                            Сбросить
+                        </a>
+                    </div>
+
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ТАБЛИЦА Пользователей -->
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            {% if perms.users.block_user %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+
+                        <th scope="col">
+                            Email
+                        </th>
+
+                        <th scope="col">
+                            Имя
+                        </th>
+
+                        <th scope="col">
+                            Активен
+                        </th>
+
+                        <th
+                                scope="col"
+                                class="text-end"
+                        >
+                            Действия
+                        </th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            {{ user.email }}
+                        </td>
+                        <td>
+                            {{ user.first_name }} {{ user.last_name }}
+                        </td>
+
+                        <td>
+                            {{ user.is_active }}
+                        </td>
+
+                        <td class="text-end text-nowrap">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a
+                                        href="{% url 'users:users_detail' user.pk %}"
+                                        class="btn btn-sm btn-outline-primary"
+                                >
+                                    Просмотр
+                                </a>
+
+                                {% if user.is_active %}
+                                <form
+                                        method="post"
+                                        action="{% url 'users:block_user' user.pk %}"
+                                        class="m-0"
+                                >
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Заблокировать
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form
+                                        method="post"
+                                        action="{% url 'users:unblock_user' user.pk %}"
+                                        class="m-0"
+                                >
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                        Разблокировать
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="p-4 text-center">
+
+                <p class="text-muted mb-3">
+                    Вы не можете просматривать список пользователей
+                </p>
+
+                {% if request.GET.search %}
+                <a
+                        href="{% url 'users:users_list' %}"
+                        class="btn btn-outline-secondary"
+                >
+                    Сбросить поиск
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ПАГИНАЦИЯ                                             -->
+
+    {% if is_paginated %}
+
+    <nav
+            aria-label="Навигация по страницам"
+            class="mt-4"
+    >
+
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a
+                        class="page-link"
+                        href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                >
+                    Назад
+                </a>
+            </li>
+
+            {% else %}
+            <li class="page-item disabled">
+                        <span class="page-link">
+                            Назад
+                        </span>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                            <span class="page-link">
+                                {{ num }}
+                            </span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a
+                        class="page-link"
+                        href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                >
+                    {{ num }}
+                </a>
+            </li>
+
+            {% endif %}
+
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a
+                        class="page-link"
+                        href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}"
+                >
+                    Вперёд
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                        <span class="page-link">
+                            Вперёд
+                        </span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+</div>
+
+{% endblock %}

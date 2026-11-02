@@ -119,8 +119,9 @@
                         </ul>
                     </li>
 
-                    <!-- DROPDOWN: ПОПЫТКИ             -->
+                    <!-- DROPDOWN: ПОЛЬЗОВАТЕЛИ - ТОЛЬКО ДЛЯ МЕНЕДЖЕРА       -->
 
+                    {% if perms.users.block_user %}
                     <li class="nav-item dropdown">
                         <a
                                 class="nav-link dropdown-toggle"
@@ -129,17 +130,81 @@
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                         >
-                            Попытки
+                            Пользователи
                         </a>
 
                         <ul class="dropdown-menu">
                             <li>
-                                <a class="dropdown-item" href="#">
-                                    Все попытки
+                                <a class="dropdown-item" href="{% url 'users:users_list'%}">
+                                    Все пользователи
                                 </a>
                             </li>
                         </ul>
                     </li>
+                    {% endif %}
+
+                    <!-- Вход / выход / регистрация -->
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a
+                                class="nav-link dropdown-toggle"
+                                href="#"
+                                role="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                        >
+                            Профиль
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'users:profile_edit' user.pk %}">
+                                    Редактировать профиль
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'users:statistic'%}">
+                                    Статистика
+                                </a>
+                            </li>
+
+                            <li>
+                                <form method="post" action="{% url 'users:logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item">
+                                        Выйти
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item dropdown">
+                        <a
+                                class="nav-link dropdown-toggle"
+                                href="#"
+                                role="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                        >
+                            Вход
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'users:login' %}">
+                                    Войти
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item" href="{% url 'users:register' %}">
+                                    Зарегистрироваться
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
 
                 </ul>
             </div>

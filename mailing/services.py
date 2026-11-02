@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.forms import forms
 from django.utils import timezone
 
+from config.settings import DEFAULT_FROM_EMAIL
 from mailing.models import MailingAttempt
 
 
@@ -12,6 +13,9 @@ def send_email(mailing):
     start_datetime = mailing.start_datetime
     end_datetime = mailing.end_datetime
     now = timezone.now()
+
+    if not mailing.is_enabled:
+        raise forms.ValidationError("Рассылка отключена.")
 
     if not start_datetime <= now <= end_datetime:
         raise forms.ValidationError("Отправка недоступна: текущее время вне периода рассылки.")
@@ -28,7 +32,7 @@ def send_email(mailing):
     for recipient in recipients:
         subject = mailing.message.subject
         message = mailing.message.body
-        from_email = "my_mail@mail.ru"
+        from_email = DEFAULT_FROM_EMAIL
         recipients_list = [
             recipient.email,
         ]

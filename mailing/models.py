@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -8,6 +9,14 @@ class Recipient(models.Model):
     email = models.EmailField(unique=True, verbose_name="Email", help_text="email получателя")
     full_name = models.CharField(max_length=255, verbose_name="Ф. И. О.")
     comment = models.TextField(blank=True, null=True, verbose_name="Комментарий")
+    owner = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="recipients",
+        null=True,
+        blank=True,
+        verbose_name="Владелец получателя",
+    )
 
     def __str__(self):
         return f"{self.full_name} ({self.email})"
@@ -15,6 +24,9 @@ class Recipient(models.Model):
     class Meta:
         verbose_name = "Получатель рассылки"
         verbose_name_plural = "Получатели рассылок"
+        permissions = [
+            ("view_all_recipients", "Может просматривать всех получателей"),
+        ]
 
 
 class Message(models.Model):
@@ -22,6 +34,14 @@ class Message(models.Model):
 
     subject = models.CharField(max_length=255, verbose_name="Тема письма", help_text="Тема")
     body = models.TextField(verbose_name="Тело письма")
+    owner = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="messages",
+        null=True,
+        blank=True,
+        verbose_name="Владелец сообщения",
+    )
 
     def __str__(self):
         return self.subject
@@ -46,12 +66,26 @@ class Mailing(models.Model):
     message = models.ForeignKey(Message, on_delete=models.PROTECT, verbose_name="Сообщение")
     recipients = models.ManyToManyField(Recipient, related_name="mailings", verbose_name="Получатели")
 
+    owner = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="mailings",
+        null=True,
+        blank=True,
+        verbose_name="Владелец рассылки",
+    )
+    is_enabled = models.BooleanField(verbose_name="Включена ли рассылка", default=True)
+
     def __str__(self):
         return f"Рассылка #{self.pk} ({self.get_status_display()})"
 
     class Meta:
         verbose_name = "Рассылка"
         verbose_name_plural = "Рассылки"
+        permissions = [
+            ("view_all_mailings", "Может просматривать все рассылки"),
+            ("disable_mailing", "Может отключать рассылку"),
+        ]
 
     def update_status(self):
         now = timezone.now()

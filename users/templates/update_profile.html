@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Редактировать профиль{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h1 class="h3 mb-4">Редактировать профиль</h1>
+
+                    <p class="mb-4">
+                        <strong>Email:</strong> {{ object.email }}
+                    </p>
+                    <p class="mb-4">
+                        Чтобы изменить ваш email, нужно выполнить повторную регистрацию
+                    </p>
+
+                    <div class="card-body">
+                        {% if user.avatar %}
+                        <div class="mb-3">
+                            <p class="form-label">Текущий аватар</p>
+                            <img
+                                    src="{{ user.avatar.url }}"
+                                    alt="Аватар пользователя"
+                                    class="img-thumbnail"
+                                    style="max-width: 150px; max-height: 150px;"
+                            >
+                        </div>
+                        {% endif %}
+
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ form.non_field_errors }}
+                            </div>
+                            {% endif %}
+
+                            {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% if field.errors %}
+                                <div class="text-danger small mt-1">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+
+                            <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                                <a href="{% url 'mailing:home' %}" class="btn btn-outline-secondary">
+                                    Отмена
+                                </a>
+                                <button type="submit" class="btn btn-primary">Сохранить</button>
+
+                                <a href="{% url 'users:profile_edit_pass' %}"
+                                   class="btn btn-primary">
+                                    Сменить пароль
+                                </a>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+</div>

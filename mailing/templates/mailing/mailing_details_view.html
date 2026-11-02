@@ -7,9 +7,9 @@
 {% block content %}
 
 {% for notification in messages %}
-    <div class="alert alert-info" role="status">
-        {{ notification }}
-    </div>
+<div class="alert alert-info" role="status">
+    {{ notification }}
+</div>
 {% endfor %}
 
 <div class="row justify-content-center">
@@ -33,6 +33,15 @@
                     <p class="mb-1">
                         <strong>Тема сообщения:</strong>
                         {{ object.message.subject }}
+                    </p>
+
+                    <p>
+                        <strong>Отправка:</strong>
+                        {% if mailing.is_enabled %}
+                        включена
+                        {% else %}
+                        отключена
+                        {% endif %}
                     </p>
 
                     <p class="mb-1">
@@ -67,27 +76,23 @@
                     <p class="text-muted">Нет получателей</p>
                     {% endif %}
 
-
                 </div>
-
 
                 <!-- Кнопки -->
                 <div class="d-flex flex-column flex-sm-row gap-2">
+                    {% if object.owner_id == user.pk %}
 
+                    {% if mailing.is_enabled %}
                     <a
                             href="{% url 'mailing:mailing_send' object.pk %}"
                             class="btn btn-outline-primary"
                     >
                         Выполнить рассылку
                     </a>
+                    {% else %}
+                    <p> Рассылка отключена </p>
+                    {% endif %}
 
-                    <a
-                            href="{% url 'mailing:mailing_list' %}"
-                            class="btn btn-outline-secondary"
-                    >
-                        К списку
-                    </a>
-                    {% if object %}
                     <a
                             href="{% url 'mailing:mailing_update' object.pk %}"
                             class="btn btn-outline-primary"
@@ -102,6 +107,42 @@
                         Удалить
                     </a>
                     {% endif %}
+
+
+                    {% if perms.mailing.disable_mailing and mailing.is_enabled %}
+                    <form method="post" action="{% url 'mailing:mailing_disable' mailing.pk %}">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2">
+
+                            <button
+                                    type="submit"
+                                    class="btn btn-danger"
+                            >
+                                Отключить
+                            </button>
+                        </div>
+                    </form>
+                    {% elif perms.mailing.disable_mailing and not mailing.is_enabled %}
+                    <form method="post" action="{% url 'mailing:mailing_enable' mailing.pk %}">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2">
+
+                            <button
+                                    type="submit"
+                                    class="btn btn-danger"
+                            >
+                                Включить
+                            </button>
+                        </div>
+                    </form>
+                    {% endif %}
+
+                    <a
+                            href="{% url 'mailing:mailing_list' %}"
+                            class="btn btn-outline-secondary"
+                    >
+                        К списку
+                    </a>
 
                 </div>
             </div>

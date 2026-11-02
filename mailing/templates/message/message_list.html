@@ -105,7 +105,7 @@
                             >
                                 Просмотр
                             </a>
-
+{% if message.owner_id == user.pk %}
                             <a
                                     href="{% url 'mailing:message_update' message.pk %}"
                                     class="btn btn-sm btn-outline-primary"
@@ -119,6 +119,7 @@
                             >
                                 Удалить
                             </a>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

@@ -74,7 +74,6 @@ class MailingForm(forms.ModelForm):
         fields = (
             "start_datetime",
             "end_datetime",
-            # "status",
             "message",
             "recipients",
         )
@@ -94,12 +93,6 @@ class MailingForm(forms.ModelForm):
                 },
                 format="%Y-%m-%dT%H:%M",
             ),
-            # Поле заполняется автоматически по датам
-            # "status": forms.Select(
-            #     attrs={
-            #         "class": "form-select",
-            #     }
-            # ),
             "message": forms.Select(
                 attrs={
                     "class": "form-select",
@@ -116,12 +109,11 @@ class MailingForm(forms.ModelForm):
         labels = {
             "start_datetime": "Дата и время первой отправки",
             "end_datetime": "Дата и время окончания отправки",
-            # "status": "Статус",
             "message": "Сообщение",
             "recipients": "Получатели",
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields["start_datetime"].input_formats = [
@@ -130,6 +122,17 @@ class MailingForm(forms.ModelForm):
         self.fields["end_datetime"].input_formats = [
             "%Y-%m-%dT%H:%M",
         ]
+
+        if user is not None and user.is_authenticated:
+            self.fields["message"].queryset = Message.objects.filter(
+                owner=user,
+            )
+            self.fields["recipients"].queryset = Recipient.objects.filter(
+                owner=user,
+            )
+        else:
+            self.fields["message"].queryset = Message.objects.none()
+            self.fields["recipients"].queryset = Recipient.objects.none()
 
     def clean_start_datetime(self):
         """Проверяет, что start_time не может быть в прошлом."""
